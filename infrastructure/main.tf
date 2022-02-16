@@ -16,6 +16,11 @@ locals {
     resource_group_name = "MSI_Todo_Testing_RG"
 }
 
+resource "random_password" "password" {
+  length = 25
+  special = true
+}
+
 resource "azurerm_resource_group" "this" {
   name                  = local.resource_group_name
   location              = local.location
@@ -95,7 +100,7 @@ resource "azurerm_mssql_server" "this" {
   location                     = local.location
   version                      = "12.0"
   administrator_login          = "manager"
-  administrator_login_password = "........................"
+  administrator_login_password = random_password.password.result
   minimum_tls_version          = "1.2"
 
   azuread_administrator {

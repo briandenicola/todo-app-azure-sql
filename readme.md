@@ -14,6 +14,10 @@ Example code to show how to use Azure User Assign Manage Identities with Azure S
 * ALTER ROLE db_datawriter ADD MEMBER [${MSI_IDENTITY}]
 * CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
 
+# Run API
+* cd src
+* dotnet run --key-vault ${vault_name} --sql-server ${db_name}
+
 # Test
 * curl -X POST http://localhost:5000/api/todo/ -d '{"Id": 123456, "Name": "Take out trash"}' -H "Content-Type: application/json"
 * curl -X POST http://localhost:5000/api/todo/ -d '{"Id": 7891011, "Name": "Clean your bathroom"}' -H "Content-Type: application/json"

@@ -2,6 +2,10 @@ global using Todos;
 global using System.Net;
 global using System.Security.Cryptography.X509Certificates;
 
+global using System.CommandLine;
+global using System.CommandLine.NamingConventionBinder;
+global using System.CommandLine.Invocation;
+
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;

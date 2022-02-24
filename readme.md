@@ -9,7 +9,6 @@ Example code to show how to use Azure User Assign Manage Identities with Azure S
 * terraform apply
 
 # SQL Setup
-* Add Client IP and VM subnet to Azure SQL Firewall Rules
 * CREATE USER [${MSI_IDENTITY}] FROM EXTERNAL PROVIDER
 * ALTER ROLE db_datareader ADD MEMBER [${MSI_IDENTITY}]
 * ALTER ROLE db_datawriter ADD MEMBER [${MSI_IDENTITY}]

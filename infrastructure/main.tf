@@ -31,8 +31,7 @@ resource "random_password" "password" {
 
 locals {
     location                    = "southcentralus"
-    certificate_base64_encoded  = filebase64("${path.module}/my-wildcard-cert.pfx")
-    certificate_password        = "abc123"
+    certificate_base64_encoded  = filebase64("${path.module}/${var.certificate_name}")
     resource_name               = "${random_pet.this.id}-${random_id.this.dec}"
 }
 
@@ -74,7 +73,7 @@ resource "azurerm_key_vault_certificate" "this" {
 
   certificate {
     contents = local.certificate_base64_encoded
-    password = local.certificate_password
+    password = var.certificate_password
   }
 
   certificate_policy {

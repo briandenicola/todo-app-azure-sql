@@ -28,7 +28,7 @@ resource "random_password" "password" {
 locals {
     location                    = "southcentralus"
     certificate_base64_encoded  = filebase64("${path.module}/my-wildcard-cert.pfx")
-    certificate_password        = "...................."
+    certificate_password        = "................."
     resource_name               = "${random_pet.this.id}-${random_id.this.dec}"
 }
 
@@ -61,6 +61,10 @@ resource "azurerm_key_vault" "this" {
 }
 
 resource "azurerm_key_vault_certificate" "this" {
+  depends_on = [
+    azurerm_role_assignment.admin
+  ]
+
   name         = "my-wildcard-pfx-cert"
   key_vault_id = azurerm_key_vault.this.id
 
@@ -86,6 +90,13 @@ resource "azurerm_key_vault_certificate" "this" {
     }
   }
 }
+
+resource "azurerm_role_assignment" "admin" {
+  scope                = azurerm_key_vault.this.id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = data.azurerm_client_config.current.object_id 
+}
+
 
 resource "azurerm_role_assignment" "secrets" {
   scope                = azurerm_key_vault.this.id
@@ -158,7 +169,7 @@ resource "azurerm_linux_virtual_machine" "this" {
   source_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "20.04-LTS"
+    sku       = "18.04-LTS"
     version   = "latest"
   }
 }

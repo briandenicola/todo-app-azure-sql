@@ -156,7 +156,7 @@ resource "azurerm_linux_virtual_machine" "this" {
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
-    name                 = "myvm001-osdisk" 
+    name                 = "${local.resource_name}-osdisk" 
   }
 
   identity {

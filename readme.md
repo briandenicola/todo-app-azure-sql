@@ -9,6 +9,7 @@ Example code to show how to use Azure User Assign Manage Identities with Azure S
 * terraform apply
 
 # SQL Setup
+* Add Client IP and VM subnet to Azure SQL Firewall Rules
 * CREATE USER [${MSI_IDENTITY}] FROM EXTERNAL PROVIDER
 * ALTER ROLE db_datareader ADD MEMBER [${MSI_IDENTITY}]
 * ALTER ROLE db_datawriter ADD MEMBER [${MSI_IDENTITY}]
@@ -16,13 +17,13 @@ Example code to show how to use Azure User Assign Manage Identities with Azure S
 
 # Run API
 * cd src
-* dotnet run --key-vault ${vault_name} --sql-server ${db_name}
+* dotnet run --keyvault ${vault_name} --sqlserver ${db_name}
 
 # Test
-* curl -X POST http://localhost:5000/api/todo/ -d '{"Id": 123456, "Name": "Take out trash"}' -H "Content-Type: application/json"
-* curl -X POST http://localhost:5000/api/todo/ -d '{"Id": 7891011, "Name": "Clean your bathroom"}' -H "Content-Type: application/json"
-* curl http://localhost:5000/api/todo/123456
-* curl http://localhost:5000/api/todo/
+* curl -kv -X POST https://localhost:8443/api/todo/ -d '{"Id": 123456, "Name": "Take out trash"}' -H "Content-Type: application/json"
+* curl -kv -X POST https://localhost:8443/api/todo/ -d '{"Id": 7891011, "Name": "Clean your bathroom"}' -H "Content-Type: application/json"
+* curl -kv https://localhost:8443/api/todo/123456
+* curl -kv https://localhost:8443/api/todo/
 
 # Reference 
 * https://github.com/davidfowl/Todos/tree/master/TodoWithDI

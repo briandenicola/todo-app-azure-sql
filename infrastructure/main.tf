@@ -11,6 +11,10 @@ provider "azurerm" {
 
 data "azurerm_client_config" "current" {}
 
+data "http" "myip" {
+  url = "http://checkip.amazonaws.com/"
+}
+
 resource "random_id" "this" {
   byte_length = 2
 }
@@ -28,7 +32,7 @@ resource "random_password" "password" {
 locals {
     location                    = "southcentralus"
     certificate_base64_encoded  = filebase64("${path.module}/my-wildcard-cert.pfx")
-    certificate_password        = "................."
+    certificate_password        = "abc123"
     resource_name               = "${random_pet.this.id}-${random_id.this.dec}"
 }
 
@@ -126,6 +130,38 @@ resource "azurerm_subnet" "this" {
   address_prefixes     = ["10.5.2.0/24"]
 }
 
+
+resource "azurerm_network_security_group" "this" {
+  name                = "${local.resource_name}-nsg"
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
+
+  security_rule {
+    name                       = "AllowSSH"
+    priority                   = 100
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "22"
+    source_address_prefix      = "${chomp(data.http.myip.body)}/32"
+    destination_address_prefix = "*"
+  }
+}
+
+resource "azurerm_subnet_network_security_group_association" "this" {
+  subnet_id                 = azurerm_subnet.this.id
+  network_security_group_id = azurerm_network_security_group.this.id
+}
+
+resource "azurerm_public_ip" "this" {
+  name                = "${local.resource_name}-pip"
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  allocation_method   = "Static"
+  sku                 = "Standard"
+}
+
 resource "azurerm_network_interface" "this" {
   name                = "${local.resource_name}-nic"
   location            = azurerm_resource_group.this.location
@@ -135,6 +171,7 @@ resource "azurerm_network_interface" "this" {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.this.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.this.id
   }
 }
 
@@ -195,4 +232,18 @@ resource "azurerm_sql_database" "this" {
   resource_group_name = azurerm_resource_group.this.name
   location            = local.location
   server_name         = azurerm_mssql_server.this.name
+}
+
+resource "azurerm_mssql_firewall_rule" "vm" {
+  name             = "AllowAzureVM"
+  server_id        = azurerm_mssql_server.this.id
+  start_ip_address = azurerm_public_ip.this.ip_address
+  end_ip_address   = azurerm_public_ip.this.ip_address
+}
+
+resource "azurerm_mssql_firewall_rule" "home" {
+  name             = "AllowHomeNetwork"
+  server_id        = azurerm_mssql_server.this.id
+  start_ip_address = "${chomp(data.http.myip.body)}"
+  end_ip_address   = "${chomp(data.http.myip.body)}"
 }

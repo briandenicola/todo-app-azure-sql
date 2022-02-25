@@ -51,3 +51,12 @@ EOF
 
 az rest --method POST --uri "https://graph.microsoft.com/beta/applications/${APPLICATION_OBJECT_ID}/federatedIdentityCredentials" --body @body.json
 rm -rf body.json
+
+AZURE_TENANT_ID=`echo ${CLUSTER_DETAILS} | jq -r ".[].identity.tenantId"`
+az aks get-credentials -n ${CLUSTER_NAME} -g ${CLUSTER_RG}
+helm repo add azure-workload-identity https://azure.github.io/azure-workload-identity/charts
+helm repo update
+helm install workload-identity-webhook azure-workload-identity/workload-identity-webhook \
+   --namespace azure-workload-identity-system \
+   --create-namespace \
+   --set azureTenantID="${AZURE_TENANT_ID}"

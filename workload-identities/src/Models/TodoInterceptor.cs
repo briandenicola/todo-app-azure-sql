@@ -1,5 +1,7 @@
 namespace Todos;
 
+//https://purple.telstra.com/blog/a-better-way-of-resolving-ef-core-interceptors-with-dependency-injection
+
 public class AadAuthenticationDbConnectionInterceptor : DbConnectionInterceptor
 {
     public override async ValueTask<InterceptionResult> ConnectionOpeningAsync(

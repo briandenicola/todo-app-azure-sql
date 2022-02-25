@@ -1,7 +1,14 @@
 terraform {
   required_version = ">= 1.0"
   required_providers {
-    azurerm        = "~> 2.96"
+    azurerm  = {
+      source = "hashicorp/azurerm"
+      version = "2.98.0"
+    }
+    azuread = {
+      source = "hashicorp/azuread"
+      version = "2.18.0"
+    }
   }
 }
 
@@ -33,18 +40,25 @@ locals {
     location                    = "southcentralus"
     certificate_base64_encoded  = filebase64("${path.module}/${var.certificate_name}")
     resource_name               = "${random_pet.this.id}-${random_id.this.dec}"
+    aks_name                    = "${local.resource_name}-aks"
 }
 
+resource "azuread_application" "this" {
+  display_name = "${local.aks_name}-${var.namespace}-identity"
+  owners       = [data.azurerm_client_config.current.object_id]
+}
+
+resource "azuread_service_principal" "this" {
+  application_id               = azuread_application.this.application_id
+  app_role_assignment_required = false
+  owners                       = [data.azurerm_client_config.current.object_id]
+}
+    
 resource "azurerm_resource_group" "this" {
   name                  = "${local.resource_name}_rg"
   location              = local.location
 }
 
-resource "azurerm_user_assigned_identity" "this" {
-  name                = "${local.resource_name}-identity"
-  resource_group_name = azurerm_resource_group.this.name
-  location            = azurerm_resource_group.this.location
-}
 
 resource "azurerm_key_vault" "this" {
   name                        = "${local.resource_name}-kv"
@@ -100,18 +114,17 @@ resource "azurerm_role_assignment" "admin" {
   principal_id         = data.azurerm_client_config.current.object_id 
 }
 
-
 resource "azurerm_role_assignment" "secrets" {
   scope                = azurerm_key_vault.this.id
   role_definition_name = "Key Vault Secrets User"
-  principal_id         = azurerm_user_assigned_identity.this.principal_id
+  principal_id         = azuread_service_principal.this.object_id
   skip_service_principal_aad_check = true  
 }
 
 resource "azurerm_role_assignment" "certs" {
   scope                = azurerm_key_vault.this.id
   role_definition_name = "Key Vault Certificates Officer"
-  principal_id         = azurerm_user_assigned_identity.this.principal_id
+  principal_id         = azuread_service_principal.this.object_id
   skip_service_principal_aad_check = true  
 }
 
@@ -141,11 +154,11 @@ resource "azurerm_subnet_network_security_group_association" "this" {
 }
 
 resource "azurerm_kubernetes_cluster" "this" {
-  name                      = "${local.resource_name}-aks"
+  name                      = "${local.aks_name}"
   resource_group_name       = azurerm_resource_group.this.name
   location                  = azurerm_resource_group.this.location
   node_resource_group       = "${local.resource_name}_k8s_nodes_rg"
-  dns_prefix                = "${local.resource_name}-aks"
+  dns_prefix                = "${local.aks_name}"
   sku_tier                  = "Paid"
   api_server_authorized_ip_ranges = ["${chomp(data.http.myip.body)}/32"]
 

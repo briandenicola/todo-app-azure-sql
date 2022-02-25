@@ -30,6 +30,7 @@ Example code to show how to use Azure AD Workload Identities and Azure AD Manage
 * cd ./infrastructure/workload-identity-example
 * terraform init
 * terraform apply
+* ./scripts/workload-identity.sh --cluster-name ${aks_cluster_name} 
 
 ## SQL Setup
 * CREATE USER [${AZURE_AD_SPN}] FROM EXTERNAL PROVIDER
@@ -38,7 +39,11 @@ Example code to show how to use Azure AD Workload Identities and Azure AD Manage
 * CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
 
 ## Run API
-* TBD
+* cd src
+* docker build -t ${docker_repo}/todoapi:1.0 .
+* docker push ${docker_repo}/todoapi:1.0
+* Update Helm chart
+* helm upgrade -i wki .
 
 ## Test
 * TBD

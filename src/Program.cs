@@ -1,5 +1,5 @@
 Uri keyVaultUri;
-SqlConnectionStringBuilder connection;
+IConfigurationRoot config;
 
 {
     var switchMappings = new Dictionary<string, string>()
@@ -8,31 +8,27 @@ SqlConnectionStringBuilder connection;
         { "-db", "azuresql" },
     };
 
-    var builder = new ConfigurationBuilder();
+    var builder = new ConfigurationBuilder();  
+
     builder.AddEnvironmentVariables(prefix: "BJD_TODO_");
     builder.AddCommandLine(args, switchMappings);
 
-    var config = builder.Build();
+    config = builder.Build();
     keyVaultUri = Helpers.GetKeyVaultUri(config["keyvault"]);
-    connection = Helpers.BuildAzureConnectionString(config["azuresql"]);
 }
 
 {   
     var builder = WebApplication.CreateBuilder();
 
+    builder.AddCustomSQLAuthentication(config["azuresql"]);
+    
     if( keyVaultUri is not null ) {
         await builder.AddCustomKeyVaultConfiguration(keyVaultUri);
     }
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-
-    builder.Services.AddDbContext<TodoDbContext>(    
-        options => options.UseSqlServer(
-            connection.ConnectionString
-        )
-    );
-
+    
     var app = builder.Build();
 
     app.MapControllers();

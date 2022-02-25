@@ -21,7 +21,6 @@ public class Helpers
             InitialCatalog = catalog,
             TrustServerCertificate = false,
             Encrypt = true,
-            //Authentication = SqlAuthenticationMethod.ActiveDirectoryManagedIdentity,
         };
     }
 }

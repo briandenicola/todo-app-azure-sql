@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ print .Values.CLUSTER_NAME "-" .Values.NAMESPACE "-identity" }}
+  name: {{ print .Values.APP_NAME "-aks-" .Values.NAMESPACE "-identity" }}
   annotations:
     azure.workload.identity/client-id: {{ .Values.ARM_WORKLOAD_APP_ID }}
     azure.workload.identity/tenant-id: {{ .Values.ARM_TENANT_ID }}
@@ -29,7 +29,7 @@ spec:
       labels:
         app: todoapi
     spec:
-      serviceAccountName: {{ print .Values.CLUSTER_NAME "-" .Values.NAMESPACE "-identity" }} 
+      serviceAccountName: {{ print .Values.APP_NAME "-aks-" .Values.NAMESPACE "-identity" }} 
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000  
@@ -49,9 +49,9 @@ spec:
         - containerPort: 8443
         env:
         - name: BJD_TODO_KEYVAULT
-          value: {{ .Values.KEYVAULT_NAME }}
+          value: {{ print .Values.APP_NAME "-kv" }} 
         - name: BJD_TODO_AZURESQL
-          value: {{ .Values.AZURESQL_NAME }}
+          value: {{ print .Values.APP_NAME "-sql" }} 
         resources:
           limits:
             memory: "512Mi"

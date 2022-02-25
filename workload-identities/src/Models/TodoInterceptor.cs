@@ -1,4 +1,5 @@
 namespace Todos;
+
 public class AadAuthenticationDbConnectionInterceptor : DbConnectionInterceptor
 {
     public override async ValueTask<InterceptionResult> ConnectionOpeningAsync(

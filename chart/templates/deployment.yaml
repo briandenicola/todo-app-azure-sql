@@ -1,9 +1,20 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ print .Values.CLUSTER_NAME "-" .Values.NAMESPACE "-identity" }}
+  annotations:
+    azure.workload.identity/client-id: {{ .Values.ARM_WORKLOAD_APP_ID }}
+    azure.workload.identity/tenant-id: {{ .Values.ARM_TENANT_ID }}
+  labels:
+    azure.workload.identity/use: "true"
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: todoapi
+  namespace: {{ .Values.NAMESPACE }}
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: todoapi
@@ -18,6 +29,7 @@ spec:
       labels:
         app: todoapi
     spec:
+      serviceAccountName: {{ print .Values.CLUSTER_NAME "-" .Values.NAMESPACE "-identity" }} 
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000  
@@ -27,11 +39,11 @@ spec:
           type: RuntimeDefault
       containers:
       - name: todo
-        image:  {{ print .Values.ACR_NAME ".azurecr.io/todoapi:" .Values.COMMIT_VERSION }} 
+        image:  {{ print .Values.ACR_NAME "/todoapi:" .Values.COMMIT_VERSION }} 
         imagePullPolicy: Always
         securityContext:
           runAsNonRoot: true
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: false
           allowPrivilegeEscalation: false  
         ports:
         - containerPort: 8443
@@ -52,6 +64,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: todoapi-svc
+  namespace: {{ .Values.NAMESPACE }}
   annotations:
     service.beta.kubernetes.io/azure-load-balancer-internal: "true"
 spec:

@@ -32,9 +32,9 @@ Example code to show how to use Azure AD Workload Identities and Azure AD Manage
 * terraform apply
 
 ## SQL Setup
-* CREATE USER [${MSI_IDENTITY}] FROM EXTERNAL PROVIDER
-* ALTER ROLE db_datareader ADD MEMBER [${MSI_IDENTITY}]
-* ALTER ROLE db_datawriter ADD MEMBER [${MSI_IDENTITY}]
+* CREATE USER [${AZURE_AD_SPN}] FROM EXTERNAL PROVIDER
+* ALTER ROLE db_datareader ADD MEMBER [${AZURE_AD_SPN}]
+* ALTER ROLE db_datawriter ADD MEMBER [${AZURE_AD_SPN}]
 * CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
 
 ## Run API

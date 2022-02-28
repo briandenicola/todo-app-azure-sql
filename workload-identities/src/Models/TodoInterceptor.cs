@@ -11,7 +11,6 @@ public class AadAuthenticationDbConnectionInterceptor : DbConnectionInterceptor
         CancellationToken cancellationToken)
     {
         var sqlConnection = (SqlConnection)connection;
-        var connectionStringBuilder = new SqlConnectionStringBuilder(sqlConnection.ConnectionString);
         sqlConnection.AccessToken = await GetAzureSqlAccessToken(cancellationToken);
         return await base.ConnectionOpeningAsync(connection, eventData, result, cancellationToken);
     }

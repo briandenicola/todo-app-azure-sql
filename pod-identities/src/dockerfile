@@ -1,0 +1,13 @@
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS builder
+
+WORKDIR /src/
+COPY . .
+RUN dotnet restore 
+RUN dotnet publish -c Release --nologo -o publish/linux
+
+#Build runtime image
+FROM mcr.microsoft.com/dotnet/runtime-deps:6.0
+WORKDIR /app
+COPY --from=builder /src/publish/linux/todoapi .
+EXPOSE 8443
+ENTRYPOINT ["/app/todoapi"]

@@ -26,6 +26,45 @@ Example code to show how to use Azure AD Workload Identities and Azure AD Manage
 * curl -kv https://localhost:8443/api/todo/123456
 * curl -kv https://localhost:8443/api/todo/
 
+# Pod Identity Example
+## Infrastructure Setup
+* cd pod-identities/infrastructure
+* terraform init
+* terraform apply
+* ./scripts/pod-identity.sh --cluster-name ${aks_cluster_name} -n default -i ${managed_identity_name}
+    * The cluster name and managed identity name will be known after terraform creates the resources in Azure.
+    * The managed identity name should be in the form of ${aks_cluster_name}-default-identity
+    * For example: jackal-59934-aks-default-identity
+
+## SQL Setup
+* CREATE USER [${MSI_IDENTITY_NAME}] FROM EXTERNAL PROVIDER
+* ALTER ROLE db_datareader ADD MEMBER [${MSI_IDENTITY_NAME}]
+* ALTER ROLE db_datawriter ADD MEMBER [${MSI_IDENTITY_NAME}]
+* CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
+* Add AKS's outbound IP Address to the Azure SQL Firewall 
+    * The outbound IP can be found in the AKS Node Resource Group
+
+### Example:
+    CREATE USER [jackal-59934-aks-default-identity] FROM EXTERNAL PROVIDER
+    ALTER ROLE db_datareader ADD MEMBER [jackal-59934-aks-default-identity]
+    ALTER ROLE db_datawriter ADD MEMBER [jackal-59934-aks-default-identity]
+    CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
+
+## Run API
+* cd pod-identities/src
+* docker build -t ${existing_docker_repo}/todoapi:1.0 .
+* docker push ${existing_docker_repo}/todoapi:1.0
+* cd pod-identities/chart
+* helm upgrade -i podid . --set "COMMIT_VERSION=1.0' --set "ACR_NAME=${existing_docker_repo}" --set "APP_NAME=${app_name_from_terraform}" --set "MSI_SELECTOR=${managed_identity_name}
+
+## Test
+* kubectl run --restart=Never --rm -it --image=bjd145/utils:2.2 utils
+* kubectl exec -it utils -- bash
+* curl -kv -X POST https://todoapi-svc:8443/api/todo/ -d '{"Id": 123456, "Name": "Take out trash"}' -H "Content-Type: application/json"
+* curl -kv -X POST https://todoapi-svc:8443/api/todo/ -d '{"Id": 7891011, "Name": "Clean your bathroom"}' -H "Content-Type: application/json"
+* curl -kv https://todoapi-svc:8443/api/todo/123456
+* curl -kv https://todoapi-svc:8443/api/todo/
+
 # Workload Identity Example
 ## Infrastructure Setup
 * cd workload-identities/infrastructure
@@ -38,14 +77,15 @@ Example code to show how to use Azure AD Workload Identities and Azure AD Manage
 * ALTER ROLE db_datareader ADD MEMBER [${AZURE_AD_SPN}]
 * ALTER ROLE db_datawriter ADD MEMBER [${AZURE_AD_SPN}]
 * CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
+* Add AKS's outbound IP Address to the Azure SQL Firewall 
+    * The outbound IP can be found in the AKS Node Resource Group
 
 ## Run API
 * cd workload-identities/src
 * docker build -t ${existing_docker_repo}/todoapi:1.0 .
 * docker push ${existing_docker_repo}/todoapi:1.0
 * cd workload-identities/chart
-* helm upgrade -i wki . --set "COMMIT_VERSION=1.0' --set "ACR_NAME=existing_docker_repo" --set "APP_NAME=${app_name_from_terraform}" --set "ARM_WORKLOAD_APP_ID=${workload_app_id}--set 
-"ARM_TENANT_ID=${azure_ad_tenant_id}"
+* helm upgrade -i wki . --set "COMMIT_VERSION=1.0' --set "ACR_NAME=existing_docker_repo" --set "APP_NAME=${app_name_from_terraform}" --set "ARM_WORKLOAD_APP_ID=${workload_app_id} --set "ARM_TENANT_ID=${azure_ad_tenant_id}"
 
 ## Test
 * kubectl run --restart=Never --rm -it --image=bjd145/utils:2.2 utils

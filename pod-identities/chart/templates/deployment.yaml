@@ -42,6 +42,8 @@ spec:
           value: {{ print .Values.APP_NAME "-kv" }} 
         - name: BJD_TODO_AZURESQL
           value: {{ print .Values.APP_NAME "-sql" }} 
+        - name: BJD_TODO_CLIENTID
+          value: {{ print .Values.MSI_CLIENTID }} 
         resources:
           limits:
             memory: "512Mi"

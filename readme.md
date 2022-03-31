@@ -70,6 +70,13 @@ Example code to show how to use Azure AD Workload Identities and Azure AD Manage
 * cd workload-identities/infrastructure
 * terraform init
 * terraform apply
+* az aks get-credentials -n ${CLUSTER_NAME} -g ${CLUSTER_RG}
+* helm repo add azure-workload-identity https://azure.github.io/azure-workload-identity/charts
+* helm repo update
+* helm install workload-identity-webhook azure-workload-identity/workload-identity-webhook \
+   --namespace azure-workload-identity-system \
+   --create-namespace \
+   --set azureTenantID="${AZURE_TENANT_ID}"
 * ./scripts/workload-identity.sh --cluster-name ${aks_cluster_name} 
 
 ## SQL Setup

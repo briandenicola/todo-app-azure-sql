@@ -51,10 +51,10 @@ terraform apply
 
 ## SQL Setup
 ```sql
-* CREATE USER [${MSI_IDENTITY_NAME}] FROM EXTERNAL PROVIDER
-* ALTER ROLE db_datareader ADD MEMBER [${MSI_IDENTITY_NAME}]
-* ALTER ROLE db_datawriter ADD MEMBER [${MSI_IDENTITY_NAME}]
-* CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
+CREATE USER [${MSI_IDENTITY_NAME}] FROM EXTERNAL PROVIDER
+ALTER ROLE db_datareader ADD MEMBER [${MSI_IDENTITY_NAME}]
+ALTER ROLE db_datawriter ADD MEMBER [${MSI_IDENTITY_NAME}]
+CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
 ```
 
 ### Example:
@@ -108,6 +108,14 @@ CREATE USER [${AZURE_AD_SPN}] FROM EXTERNAL PROVIDER
 ALTER ROLE db_datareader ADD MEMBER [${AZURE_AD_SPN}]
 ALTER ROLE db_datawriter ADD MEMBER [${AZURE_AD_SPN}]
 CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
+```
+
+### Example:
+```sql
+    CREATE USER [jackal-59934-aks-w-identity] FROM EXTERNAL PROVIDER
+    ALTER ROLE db_datareader ADD MEMBER [jackal-59934-aks-wkli-identity]
+    ALTER ROLE db_datawriter ADD MEMBER [jackal-59934-aks-wkli-identity]
+    CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
 ```
 ### Notes
 * Add AKS's outbound IP Address to the Azure SQL Firewall which can be found in the AKS Node Resource Group

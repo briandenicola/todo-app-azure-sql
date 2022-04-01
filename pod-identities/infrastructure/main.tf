@@ -200,8 +200,10 @@ resource "azurerm_kubernetes_cluster" "this" {
     load_balancer_sku       = "standard"
   }
 
-  addon_profile {
+  oms_agent {
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
   }
+
 }
 
 resource "null_resource" "this" {
@@ -262,4 +264,24 @@ resource "azurerm_mssql_firewall_rule" "home" {
   server_id        = azurerm_mssql_server.this.id
   start_ip_address = "${chomp(data.http.myip.body)}"
   end_ip_address   = "${chomp(data.http.myip.body)}"
+}
+
+resource "azurerm_log_analytics_workspace" "this" {
+  name                = "${local.aks_name}-logs"
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
+  sku                 = "pergb2018"
+}
+
+resource "azurerm_log_analytics_solution" "this" {
+  solution_name         = "ContainerInsights"
+  location              = azurerm_resource_group.this.location
+  resource_group_name   = azurerm_resource_group.this.name
+  workspace_resource_id = azurerm_log_analytics_workspace.this.id
+  workspace_name        = azurerm_log_analytics_workspace.this.name
+
+  plan {
+    publisher = "Microsoft"
+    product   = "OMSGallery/ContainerInsights"
+  }
 }

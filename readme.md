@@ -2,8 +2,6 @@
 
 Example code to show how to use Azure AD Workload Identities and Azure AD Managed Identities. There are two different examples - one using a VM as client and one with a pod running in AKS.  
 
-[[toc]]
-
 # Managed Identity Example
 ## Infrastructure Setup
 ```bash

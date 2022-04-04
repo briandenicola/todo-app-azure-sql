@@ -17,13 +17,15 @@ public class TodoController : ControllerBase
     [HttpPost]
     public async Task Post(Todo todo, CancellationToken cancellationToken)
     {
-          _db.Todos.Add(todo);
+        _logger.LogTrace($"Trace Handling of {todo.Id}");
+        _db.Todos.Add(todo);
         await _db.SaveChangesAsync();
     }
 
     [HttpGet]
     public async Task<ActionResult<List<Todo>>> GetAll()
     {
+        _logger.LogInformation($"Informational handling of Get All Request");
         var todos = await _db.Todos.ToListAsync();
         return Ok(todos);
     }
@@ -31,6 +33,7 @@ public class TodoController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Todo>> Get(int id, CancellationToken cancellationToken)
     {
+        _logger.LogDebug($"Debug Handling of {id}");
         var todo = await _db.Todos.FindAsync(id);
         if (todo == null)
         {

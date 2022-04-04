@@ -17,6 +17,7 @@ public class TodoController : ControllerBase
     [HttpPost]
     public async Task Post(Todo todo, CancellationToken cancellationToken)
     {
+        _logger.LogInformation($"Handling POST request for ${todo.Id}");
         _db.Todos.Add(todo);
         await _db.SaveChangesAsync();
     }
@@ -24,6 +25,7 @@ public class TodoController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<Todo>>> GetAll()
     {
+        _logger.LogInformation($"Handling Get Alls request");
         var todos = await _db.Todos.ToListAsync();
         return Ok(todos);
     }
@@ -31,6 +33,7 @@ public class TodoController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Todo>> Get(int id, CancellationToken cancellationToken)
     {
+        _logger.LogInformation($"Handling GET request for ${id}");
         var todo = await _db.Todos.FindAsync(id);
         if (todo == null)
         {

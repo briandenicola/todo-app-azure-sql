@@ -20,15 +20,4 @@ public static class ProgramExtensions
             });
         });
     }
-
-    /*public static void AddCustomSQLAuthentication(this WebApplicationBuilder builder, String sqlServerName)
-    {
-        var connection = Helpers.BuildAzureConnectionString(sqlServerName);
-
-        builder.Services.AddDbContext<TodoDbContext>(    
-            options => options.UseSqlServer(connection.ConnectionString, o => o.EnableRetryOnFailure() )
-                              .AddInterceptors(new AadAuthenticationDbConnectionInterceptor())
-        );
-
-    }*/
 }

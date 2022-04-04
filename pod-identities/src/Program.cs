@@ -22,14 +22,16 @@ SqlConnectionStringBuilder connection;
 {   
     var builder = WebApplication.CreateBuilder();
 
-    //builder.AddCustomSQLAuthentication(config["azuresql"]);
-    
+    builder.Logging.AddConsole();
+    builder.Logging.AddApplicationInsights();
+
     if( keyVaultUri is not null ) {
         await builder.AddCustomKeyVaultConfiguration(keyVaultUri);
     }
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddApplicationInsightsTelemetry();
 
     builder.Services.AddDbContext<TodoDbContext>(    
         options => options.UseSqlServer(
@@ -38,7 +40,7 @@ SqlConnectionStringBuilder connection;
     );
 
     var app = builder.Build();
-
     app.MapControllers();
+    app.Logger.LogInformation("Application is ready to run.");    
     app.Run();
 }

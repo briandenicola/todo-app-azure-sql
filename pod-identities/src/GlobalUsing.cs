@@ -10,6 +10,11 @@ global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Diagnostics;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Logging.ApplicationInsights;
+global using Microsoft.Extensions.Hosting;
+
+
+global using Microsoft.ApplicationInsights.AspNetCore;
 
 global using Azure.Core;
 global using Azure.Identity;

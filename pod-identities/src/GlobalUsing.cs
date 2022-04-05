@@ -13,8 +13,10 @@ global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Logging.ApplicationInsights;
 global using Microsoft.Extensions.Hosting;
 
-
+global using Microsoft.ApplicationInsights;
 global using Microsoft.ApplicationInsights.AspNetCore;
+global using Microsoft.ApplicationInsights.AspNetCore.Extensions;
+global using Microsoft.ApplicationInsights.Extensibility;
 
 global using Azure.Core;
 global using Azure.Identity;

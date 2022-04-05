@@ -1,6 +1,7 @@
 Uri keyVaultUri;
 IConfigurationRoot config;
 SqlConnectionStringBuilder connection;
+string appInsights;
 
 {
     var switchMappings = new Dictionary<string, string>()
@@ -17,13 +18,11 @@ SqlConnectionStringBuilder connection;
     config = builder.Build();
     keyVaultUri = Helpers.GetKeyVaultUri(config["keyvault"]);
     connection = Helpers.BuildAzureConnectionString(config["azuresql"], clientid: config["clientid"]);
+    appInsights = config["appinsights"];
 }
 
 {   
     var builder = WebApplication.CreateBuilder();
-
-    builder.Logging.AddConsole();
-    builder.Logging.AddApplicationInsights();
 
     if( keyVaultUri is not null ) {
         await builder.AddCustomKeyVaultConfiguration(keyVaultUri);
@@ -31,7 +30,7 @@ SqlConnectionStringBuilder connection;
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddApplicationInsightsTelemetry();
+    builder.AddCustomApplicationInsightsConfiguration(appInsights);
 
     builder.Services.AddDbContext<TodoDbContext>(    
         options => options.UseSqlServer(

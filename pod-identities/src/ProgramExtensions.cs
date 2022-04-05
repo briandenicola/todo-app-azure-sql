@@ -20,4 +20,19 @@ public static class ProgramExtensions
             });
         });
     }
+
+    public static void AddCustomApplicationInsightsConfiguration (this WebApplicationBuilder builder, string aiConnectionString)
+    {
+        builder.Logging.AddConsole();
+        builder.Logging.AddApplicationInsights();
+        builder.Services.Configure<TelemetryConfiguration>(config =>  {
+            var credential = new DefaultAzureCredential();
+            config.SetAzureTokenCredential(credential);
+        });
+        builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+        {
+            ConnectionString = aiConnectionString
+        });
+    }
+
 }

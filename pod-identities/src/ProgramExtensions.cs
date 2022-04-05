@@ -21,7 +21,7 @@ public static class ProgramExtensions
         });
     }
 
-    public static void AddCustomApplicationConfiguration(this WebApplicationBuilder builder ) 
+    public static void AddCustomApplicationInsightsConfiguration (this WebApplicationBuilder builder, string aiConnectionString)
     {
         builder.Logging.AddConsole();
         builder.Logging.AddApplicationInsights();
@@ -30,7 +30,11 @@ public static class ProgramExtensions
             var credential = new DefaultAzureCredential();
             config.SetAzureTokenCredential(credential);
         });
-        builder.Services.AddApplicationInsightsTelemetry();
+
+        builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+        {
+            ConnectionString = aiConnectionString
+        });
     }
 
 }

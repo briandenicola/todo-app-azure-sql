@@ -52,7 +52,9 @@ spec:
         - name: BJD_TODO_KEYVAULT
           value: {{ print .Values.APP_NAME "-kv" }} 
         - name: BJD_TODO_AZURESQL
-          value: {{ print .Values.APP_NAME "-sql" }} 
+          value: {{ print .Values.APP_NAME "-sql" }}
+        - name: BJD_TODO_APPINSIGHTS
+          value: {{ print .Values.APP_INSIGHTS }}
         resources:
           limits:
             memory: "512Mi"

@@ -44,6 +44,8 @@ spec:
           value: {{ print .Values.APP_NAME "-sql" }} 
         - name: BJD_TODO_CLIENTID
           value: {{ print .Values.MSI_CLIENTID }} 
+        - name: BJD_TODO_APPINSIGHTS
+          value: {{ print .Values.APP_INSIGHTS }}
         resources:
           limits:
             memory: "512Mi"

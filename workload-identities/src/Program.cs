@@ -1,5 +1,6 @@
 Uri keyVaultUri;
 IConfigurationRoot config;
+string appInsights;;
 
 {
     var switchMappings = new Dictionary<string, string>()
@@ -15,14 +16,13 @@ IConfigurationRoot config;
 
     config = builder.Build();
     keyVaultUri = Helpers.GetKeyVaultUri(config["keyvault"]);
+    appInsights = config["appinsights"];
 }
 
 {   
     var builder = WebApplication.CreateBuilder();
 
-    builder.Logging.AddConsole();
-    builder.Logging.AddApplicationInsights();
-
+    builder.AddCustomApplicationInsightsConfiguration(appInsights);
     builder.AddCustomSQLAuthentication(config["azuresql"]);
     
     if( keyVaultUri is not null ) {
@@ -31,7 +31,6 @@ IConfigurationRoot config;
 
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddApplicationInsightsTelemetry();
     
     var app = builder.Build();
     app.Logger.LogInformation("Application is ready to run."); 

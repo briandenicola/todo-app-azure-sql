@@ -27,10 +27,10 @@ string appInsights;
     if( keyVaultUri is not null ) {
         await builder.AddCustomKeyVaultConfiguration(keyVaultUri);
     }
-
+    builder.AddCustomApplicationInsightsConfiguration(appInsights);
+    
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
-    builder.AddCustomApplicationInsightsConfiguration(appInsights);
 
     builder.Services.AddDbContext<TodoDbContext>(    
         options => options.UseSqlServer(

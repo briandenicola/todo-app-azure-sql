@@ -323,6 +323,6 @@ resource "azurerm_application_insights" "this" {
 resource "azurerm_role_assignment" "azurerm_application_insights" {
   scope                     = azurerm_application_insights.this.id
   role_definition_name      = "Monitoring Metrics Publisher"
-  principal_id              = azurerm_user_assigned_identity.aks_pod_identity.principal_id
+  principal_id              = azuread_service_principal.this.object_id
   skip_service_principal_aad_check = true 
 }

@@ -33,6 +33,12 @@ CLUSTER_DETAILS=`az aks list --query "[?name=='${CLUSTER_NAME}']"`
 CLUSTER_RG=`echo ${CLUSTER_DETAILS} | jq -r ".[].resourceGroup"`
 AZURE_TENANT_ID=`echo ${CLUSTER_DETAILS} | jq -r ".[].identity.tenantId"`
 
+OIDC_FEATURE_ENABLED=`az aks show --resource-group ${CLUSTER_RG} --name ${CLUSTER_NAME} --query "oidcIssuerProfile.enabled" -o tsv`
+if [ ${OIDC_FEATURE_ENABLED} == "false" ]; then
+  echo OIDC Feature NOT enabled... Updating Cluster to enable.
+  az aks update -g ${CLUSTER_RG} -n ${CLUSTER_NAME} --enable-oidc-issuer
+fi
+   
 SERVICE_ACCOUNT_NAME=${CLUSTER_NAME}-${NAMESPACE}-identity
 SERVICE_ACCOUNT_ISSUER=`az aks show --resource-group ${CLUSTER_RG} --name ${CLUSTER_NAME} --query "oidcIssuerProfile.issuerUrl" -o tsv`
 APPLICATION_CLIENT_ID=`az ad sp list --display-name ${SERVICE_ACCOUNT_NAME} -o tsv --query "[0].appId"`

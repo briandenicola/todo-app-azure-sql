@@ -3,7 +3,7 @@ terraform {
   required_providers {
     azurerm  = {
       source = "hashicorp/azurerm"
-      version = "2.98.0"
+      version = "3.2.0"
     }
     azuread = {
       source = "hashicorp/azuread"
@@ -160,6 +160,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   node_resource_group       = "${local.resource_name}_k8s_nodes_rg"
   dns_prefix                = "${local.aks_name}"
   sku_tier                  = "Paid"
+  oidc_issuer_enabled       = true
   api_server_authorized_ip_ranges = ["${chomp(data.http.myip.body)}/32"]
 
   identity {
@@ -179,8 +180,8 @@ resource "azurerm_kubernetes_cluster" "this" {
     max_pods                = 40
   }
 
-  role_based_access_control {
-    enabled                 = "true"
+  azure_active_directory_role_based_access_control  {
+    managed                 = true
   }
 
   network_profile {
@@ -232,9 +233,6 @@ resource "azurerm_resource_group_template_deployment" "this" {
           "name": "[parameters('aksCluster')]", 
           "location": "[resourceGroup().location]",
           "properties": {
-            "oidcIssuerProfile": {
-              "enabled": true
-            },
             "securityProfile": { 
               "azureDefender": { 
                 "enabled": true, 
@@ -270,11 +268,9 @@ resource "azurerm_mssql_server" "this" {
 
 }
 
-resource "azurerm_sql_database" "this" {
+resource "azurerm_mssql_database" "this" {
   name                = "todo"
-  resource_group_name = azurerm_resource_group.this.name
-  location            = local.location
-  server_name         = azurerm_mssql_server.this.name
+  server_id           = azurerm_mssql_server.this.name
 }
 
 resource "azurerm_mssql_firewall_rule" "home" {
@@ -288,7 +284,7 @@ resource "azurerm_log_analytics_workspace" "this" {
   name                = "${local.resource_name}-logs"
   location            = azurerm_resource_group.this.location
   resource_group_name = azurerm_resource_group.this.name
-  sku                 = "pergb2018"
+  sku                 = "PerGB2018"
 }
 
 resource "azurerm_log_analytics_solution" "this" {

@@ -198,9 +198,20 @@ resource "azurerm_kubernetes_cluster" "this" {
 
 }
 
+resource "null_resource" "this" {
+  depends_on = [
+    azurerm_kubernetes_cluster.this
+  ]
+  provisioner "local-exec" {
+    command = "az aks update -g ${azurerm_resource_group.this.name} -n ${local.resource_name}-aks --enable-oidc-issuer"
+    interpreter = ["pwsh", "-Command"]
+  }
+}
+
 resource "azurerm_resource_group_template_deployment" "this" {
   depends_on = [
-     azurerm_kubernetes_cluster.this
+    azurerm_kubernetes_cluster.this,
+    null_resource.this
   ]
 
   name                = "post-cluster-setup"

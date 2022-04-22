@@ -57,6 +57,12 @@ resource "azuread_service_principal" "this" {
 resource "azurerm_resource_group" "this" {
   name                  = "${local.resource_name}_rg"
   location              = local.location
+  
+  tags     = {
+    Application = "todo"
+    Components  = "aks; key vault; azure-sql; workload-identities"
+    DeployedOn  = timestamp()
+  }
 }
 
 

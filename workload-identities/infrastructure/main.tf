@@ -3,17 +3,49 @@ terraform {
   required_providers {
     azurerm  = {
       source = "hashicorp/azurerm"
-      version = "3.2.0"
+      version = "3.3.0"
     }
     azuread = {
       source = "hashicorp/azuread"
       version = "2.18.0"
+    }
+    helm = {
+      source = "hashicorp/helm"
+      version = "2.5.1"
     }
   }
 }
 
 provider "azurerm" {
   features  {}
+}
+
+provider "helm" {
+  kubernetes {
+    host                   = azurerm_kubernetes_cluster.this.kube_config.0.host
+
+    cluster_ca_certificate = base64decode(azurerm_kubernetes_cluster.this.kube_config.0.cluster_ca_certificate)
+    client_certificate     = base64decode(azurerm_kubernetes_cluster.this.kube_config.0.client_certificate)
+    client_key             = base64decode(azurerm_kubernetes_cluster.this.kube_config.0.client_key)
+    username               = azurerm_kubernetes_cluster.this.kube_config.0.username
+    password               = azurerm_kubernetes_cluster.this.kube_config.0.password
+
+    /*exec {
+      api_version = "client.authentication.k8s.io/v1alpha1"
+      args        = [
+        "get-token", 
+         "--environment", 
+        "AzurePublicCloud",
+        "--server-id", 
+        "6dae42f8-4368-4678-94ff-3960e28e3630", 
+       "--client-id", 
+        "80faf920-1908-4b52-b5ef-a8e7bedfc67a",
+        "--tenant-id",
+        data.azurerm_client_config.current.tenant_id
+     ]
+      command     = "kubelogin"
+    }*/
+  }
 }
 
 data "azurerm_client_config" "current" {}
@@ -186,10 +218,6 @@ resource "azurerm_kubernetes_cluster" "this" {
     max_pods                = 40
   }
 
-  azure_active_directory_role_based_access_control  {
-    managed                 = true
-  }
-
   network_profile {
     dns_service_ip          = "10.190.0.10"
     service_cidr            = "10.190.0.0/16"
@@ -250,7 +278,7 @@ resource "azurerm_resource_group_template_deployment" "this" {
       ]
     }
 TEMPLATE
-}
+} 
 
 resource "azurerm_role_assignment" "aks" {
   scope                = azurerm_virtual_network.this.id
@@ -276,7 +304,7 @@ resource "azurerm_mssql_server" "this" {
 
 resource "azurerm_mssql_database" "this" {
   name                = "todo"
-  server_id           = azurerm_mssql_server.this.name
+  server_id           = azurerm_mssql_server.this.id
 }
 
 resource "azurerm_mssql_firewall_rule" "home" {
@@ -320,3 +348,21 @@ resource "azurerm_role_assignment" "azurerm_application_insights" {
   principal_id              = azuread_service_principal.this.object_id
   skip_service_principal_aad_check = true 
 }
+
+resource "helm_release" "azure-workload-identity" {
+  depends_on = [
+    azurerm_kubernetes_cluster.this,
+    azurerm_resource_group_template_deployment.this
+  ]
+  name              = "azure-workload-identity"
+  repository        = "https://azure.github.io/azure-workload-identity/charts"
+  chart             = "workload-identity-webhook"
+  namespace         = "azure-workload-identity-system"
+  create_namespace  = true
+
+  set {
+    name  = "azureTenantID"
+    value = data.azurerm_client_config.current.tenant_id
+  }
+}
+

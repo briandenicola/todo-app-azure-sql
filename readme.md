@@ -10,15 +10,10 @@ All infrastructure is configured with Terraform and the Code is written in C#.
 * The [Pod Identity Example](#pod-identity-example) is an example using Azure AD Managed Identity with [AKS Pod Identity](https://docs.microsoft.com/en-us/azure/aks/use-azure-ad-pod-identity) which is still supported but considered legacy inside AKS
 * The [Workload Identity Example](#workload-identity-example) is an example using Azure AD Managed Identity with [AKS Workload Identity](https://azure.github.io/azure-workload-identity/docs/introduction.html) which is in preview (as of 4/26/22) but is the direction forward for identities in AKS
 
-# Pre-requisties 
-## Certificate 
-openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out todo.crt -keyout todo.key
-
 # Managed Identity Example
 ## Infrastructure Setup
 ```bash
 cd managed-identities/infrastructure
-openssl pkcs12 -export -out my-wildcard-cert.pfx -inkey todo.key -in todo.crt
 terraform init
 terraform apply
 ```
@@ -43,7 +38,6 @@ ssh manager@${vm-pip}
 ## Infrastructure Setup
 ```bash
 cd pod-identities/infrastructure
-openssl pkcs12 -export -out my-wildcard-cert.pfx -inkey todo.key -in todo.crt
 terraform init
 terraform apply
 ./scripts/pod-identity.sh --cluster-name ${aks_cluster_name} -n default -i ${managed_identity_name}
@@ -77,7 +71,6 @@ helm upgrade -i podid . --set "COMMIT_VERSION=1.0" --set "ACR_NAME=${existing_do
 ## Infrastructure Setup
 ```bash
 cd workload-identities/infrastructure
-openssl pkcs12 -export -out my-wildcard-cert.pfx -inkey todo.key -in todo.crt
 terraform init
 terraform apply
 az aks get-credentials -n ${CLUSTER_NAME} -g ${CLUSTER_RG}

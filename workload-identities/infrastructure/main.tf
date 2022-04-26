@@ -70,7 +70,6 @@ resource "random_password" "password" {
 
 locals {
     location                    = "southcentralus"
-    certificate_base64_encoded  = filebase64("${path.module}/${var.certificate_name}")
     resource_name               = "${random_pet.this.id}-${random_id.this.dec}"
     aks_name                    = "${local.resource_name}-aks"
 }
@@ -123,11 +122,6 @@ resource "azurerm_key_vault_certificate" "this" {
   name         = "my-wildcard-pfx-cert"
   key_vault_id = azurerm_key_vault.this.id
 
-  certificate {
-    contents = local.certificate_base64_encoded
-    password = var.certificate_password
-  }
-
   certificate_policy {
     issuer_parameters {
       name = "Self"
@@ -142,6 +136,26 @@ resource "azurerm_key_vault_certificate" "this" {
 
     secret_properties {
       content_type = "application/x-pkcs12"
+    }
+
+    x509_certificate_properties {
+      extended_key_usage = ["1.3.6.1.5.5.7.3.1"]
+
+      key_usage = [
+        "cRLSign",
+        "dataEncipherment",
+        "digitalSignature",
+        "keyAgreement",
+        "keyCertSign",
+        "keyEncipherment",
+      ]
+
+      subject_alternative_names {
+        dns_names = ["*.todo.local"]
+      }
+
+      subject            = "CN=*.todo.local"
+      validity_in_months = 12
     }
   }
 }

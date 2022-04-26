@@ -10,11 +10,15 @@ All infrastructure is configured with Terraform and the Code is written in C#.
 * The [Pod Identity Example](#pod-identity-example) is an example using Azure AD Managed Identity with [AKS Pod Identity](https://docs.microsoft.com/en-us/azure/aks/use-azure-ad-pod-identity) which is still supported but considered legacy inside AKS
 * The [Workload Identity Example](#workload-identity-example) is an example using Azure AD Managed Identity with [AKS Workload Identity](https://azure.github.io/azure-workload-identity/docs/introduction.html) which is in preview (as of 4/26/22) but is the direction forward for identities in AKS
 
+# Pre-requisties 
+## Certificate 
+openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes -out todo.crt -keyout todo.key
 
 # Managed Identity Example
 ## Infrastructure Setup
 ```bash
 cd managed-identities/infrastructure
+openssl pkcs12 -export -out my-wildcard-cert.pfx -inkey todo.key -in todo.crt
 terraform init
 terraform apply
 ```
@@ -35,18 +39,11 @@ ssh manager@${vm-pip}
 /tmp/todoapi --keyvault ${vault_name} --sqlserver ${db_name}
 ```
 
-## Test
-```bash
-curl -kv -X POST https://localhost:8443/api/todo/ -d '{"Id": 123456, "Name": "Take out trash"}' -H "Content-Type: application/json"
-curl -kv -X POST https://localhost:8443/api/todo/ -d '{"Id": 7891011, "Name": "Clean your bathroom"}' -H "Content-Type: application/json"
-curl -kv https://localhost:8443/api/todo/123456
-curl -kv https://localhost:8443/api/todo/
-```
-
 # Pod Identity Example
 ## Infrastructure Setup
 ```bash
 cd pod-identities/infrastructure
+openssl pkcs12 -export -out my-wildcard-cert.pfx -inkey todo.key -in todo.crt
 terraform init
 terraform apply
 ./scripts/pod-identity.sh --cluster-name ${aks_cluster_name} -n default -i ${managed_identity_name}
@@ -74,21 +71,12 @@ docker build -t ${existing_docker_repo}/todoapi:1.0 .
 docker push ${existing_docker_repo}/todoapi:1.0
 cd pod-identities/chart
 helm upgrade -i podid . --set "COMMIT_VERSION=1.0' --set "ACR_NAME=${existing_docker_repo}" --set "APP_NAME=${app_name_from_terraform}" --set "MSI_SELECTOR=${managed_identity_name}
-```
-## Test
-```bash
-kubectl run --restart=Never --rm -it --image=bjd145/utils:2.2 utils
-kubectl exec -it utils -- bash
-curl -kv -X POST https://todoapi-svc:8443/api/todo/ -d '{"Id": 123456, "Name": "Take out trash"}' -H "Content-Type: application/json"
-curl -kv -X POST https://todoapi-svc:8443/api/todo/ -d '{"Id": 7891011, "Name": "Clean your bathroom"}' -H "Content-Type: application/json"
-curl -kv https://todoapi-svc:8443/api/todo/123456
-curl -kv https://todoapi-svc:8443/api/todo/
-```
 
 # Workload Identity Example
 ## Infrastructure Setup
 ```bash
 cd workload-identities/infrastructure
+openssl pkcs12 -export -out my-wildcard-cert.pfx -inkey todo.key -in todo.crt
 terraform init
 terraform apply
 az aks get-credentials -n ${CLUSTER_NAME} -g ${CLUSTER_RG}
@@ -115,7 +103,16 @@ cd workload-identities/chart
 helm upgrade -i wki . --set "COMMIT_VERSION=1.0' --set "ACR_NAME=existing_docker_repo" --set "APP_NAME=${app_name_from_terraform}" --set "ARM_WORKLOAD_APP_ID=${workload_app_id} --set "ARM_TENANT_ID=${azure_ad_tenant_id}"
 ```
 
-## Test
+# Testing
+## Virtual Machine 
+```bash
+ssh manager@${vm-pip}
+curl -kv -X POST https://localhost:8443/api/todo/ -d '{"Id": 123456, "Name": "Take out trash"}' -H "Content-Type: application/json"
+curl -kv -X POST https://localhost:8443/api/todo/ -d '{"Id": 7891011, "Name": "Clean your bathroom"}' -H "Content-Type: application/json"
+curl -kv https://localhost:8443/api/todo/123456
+curl -kv https://localhost:8443/api/todo/
+```
+## AKS
 ```bash
 kubectl run --restart=Never --rm -it --image=bjd145/utils:2.2 utils
 kubectl exec -it utils -- bash

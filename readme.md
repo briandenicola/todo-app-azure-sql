@@ -70,7 +70,8 @@ cd pod-identities/src
 docker build -t ${existing_docker_repo}/todoapi:1.0 .
 docker push ${existing_docker_repo}/todoapi:1.0
 cd pod-identities/chart
-helm upgrade -i podid . --set "COMMIT_VERSION=1.0' --set "ACR_NAME=${existing_docker_repo}" --set "APP_NAME=${app_name_from_terraform}" --set "MSI_SELECTOR=${managed_identity_name}
+helm upgrade -i podid . --set "COMMIT_VERSION=1.0" --set "ACR_NAME=${existing_docker_repo}" --set "APP_NAME=${app_name_from_terraform}" --set "MSI_SELECTOR=${managed_identity_name}"
+```
 
 # Workload Identity Example
 ## Infrastructure Setup
@@ -100,7 +101,7 @@ cd workload-identities/src
 docker build -t ${existing_docker_repo}/todoapi:1.0 .
 docker push ${existing_docker_repo}/todoapi:1.0
 cd workload-identities/chart
-helm upgrade -i wki . --set "COMMIT_VERSION=1.0' --set "ACR_NAME=existing_docker_repo" --set "APP_NAME=${app_name_from_terraform}" --set "ARM_WORKLOAD_APP_ID=${workload_app_id} --set "ARM_TENANT_ID=${azure_ad_tenant_id}"
+helm upgrade -i wki . --set "COMMIT_VERSION=1.0" --set "ACR_NAME=existing_docker_repo" --set "APP_NAME=${app_name_from_terraform}" --set "ARM_WORKLOAD_APP_ID=${workload_app_id} --set "ARM_TENANT_ID=${azure_ad_tenant_id}"
 ```
 
 # Testing

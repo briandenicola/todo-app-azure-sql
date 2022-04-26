@@ -1,6 +1,15 @@
 # Overview 
 
-Example code to show how to use Azure AD Workload Identities and Azure AD Managed Identities. There are two different examples - one using a VM as client and one with a pod running in AKS.  
+A Managed Identity is an Azure AD Service Principal (aka App Registration) in which the credentials are managed by Azure AD instead of being statically defined.  A Identity is assoicated with a resource (Virtual Machine or a Pod inside AKS) and then assigned roles to other Azure resources (like Key Vault or Azure SQL)
+
+This repo has example code to show how to leverage these Identities. All examples leverage an identity to authenticate to Azure Key Vault to for a TLS certificate and to authenticate to a simple Azure SQL Todo databasde.
+
+All infrastructure is configured with Terraform and the Code is written in C#.
+
+* The [Managed Identity Example](#managed-identity-example) is a simple example using Azure AD Managed Identity associated with an Azure VM.
+* The [Pod Identity Example](#pod-identity-example) is an example using Azure AD Managed Identity with [AKS Pod Identity](https://docs.microsoft.com/en-us/azure/aks/use-azure-ad-pod-identity) which is still supported but considered legacy inside AKS
+* The [Workload Identity Example](#workload-identity-example) is an example using Azure AD Managed Identity with [AKS Workload Identity](https://azure.github.io/azure-workload-identity/docs/introduction.html) which is in preview (as of 4/26/22) but is the direction forward for identities in AKS
+
 
 # Managed Identity Example
 ## Infrastructure Setup
@@ -55,14 +64,6 @@ ALTER ROLE db_datawriter ADD MEMBER [${MSI_IDENTITY_NAME}]
 CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
 ```
 
-### Example:
-```sql
-    CREATE USER [jackal-59934-aks-default-identity] FROM EXTERNAL PROVIDER
-    ALTER ROLE db_datareader ADD MEMBER [jackal-59934-aks-default-identity]
-    ALTER ROLE db_datawriter ADD MEMBER [jackal-59934-aks-default-identity]
-    CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
-```
-
 ### Notes:
 * Add AKS's outbound IP Address to the Azure SQL Firewall which can be found in the AKS Node Resource Group
 
@@ -91,12 +92,6 @@ cd workload-identities/infrastructure
 terraform init
 terraform apply
 az aks get-credentials -n ${CLUSTER_NAME} -g ${CLUSTER_RG}
-helm repo add azure-workload-identity https://azure.github.io/azure-workload-identity/charts
-helm repo update
-helm install workload-identity-webhook azure-workload-identity/workload-identity-webhook \
-   --namespace azure-workload-identity-system \
-   --create-namespace \
-   --set azureTenantID="${AZURE_TENANT_ID}"
 ./scripts/workload-identity.sh --cluster-name ${aks_cluster_name} 
 ```
 
@@ -108,13 +103,6 @@ ALTER ROLE db_datawriter ADD MEMBER [${AZURE_AD_SPN}]
 CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
 ```
 
-### Example:
-```sql
-    CREATE USER [jackal-59934-aks-w-identity] FROM EXTERNAL PROVIDER
-    ALTER ROLE db_datareader ADD MEMBER [jackal-59934-aks-wkli-identity]
-    ALTER ROLE db_datawriter ADD MEMBER [jackal-59934-aks-wkli-identity]
-    CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
-```
 ### Notes
 * Add AKS's outbound IP Address to the Azure SQL Firewall which can be found in the AKS Node Resource Group
 

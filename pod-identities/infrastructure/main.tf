@@ -3,7 +3,10 @@ terraform {
   required_providers {
     azurerm  = {
       source = "hashicorp/azurerm"
-      version = "2.98.0"
+      version = "3.3.0"
+    }
+    azapi = {
+      source = "Azure/azapi"
     }
   }
 }
@@ -180,7 +183,7 @@ resource "azurerm_kubernetes_cluster" "this" {
 
   identity {
     type                      = "UserAssigned"
-    user_assigned_identity_id = azurerm_user_assigned_identity.aks_identity.id
+    identity_ids              = [ azurerm_user_assigned_identity.aks_identity.id ]
   }
 
   kubelet_identity {
@@ -202,10 +205,6 @@ resource "azurerm_kubernetes_cluster" "this" {
     max_pods                = 40
   }
 
-  role_based_access_control {
-    enabled                 = "true"
-  }
-
   network_profile {
     dns_service_ip          = "10.190.0.10"
     service_cidr            = "10.190.0.0/16"
@@ -218,57 +217,28 @@ resource "azurerm_kubernetes_cluster" "this" {
     log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
   }
 
+  microsoft_defender {
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
+  }
+
 }
 
-resource "azurerm_resource_group_template_deployment" "this" {
+resource "azapi_update_resource" "this" {
   depends_on = [
-     azurerm_kubernetes_cluster.this
+    azurerm_kubernetes_cluster.this
   ]
 
-  name                = "post-cluster-setup"
-  resource_group_name = azurerm_resource_group.this.name
-  deployment_mode     = "Incremental"
-  parameters_content  = jsonencode({
-    "aksCluster"      = {
-      value = local.aks_name
-    },
-    "logAnalyticsId"  = {
-      value = azurerm_log_analytics_workspace.this.id
+  type        = "Microsoft.ContainerService/managedClusters@2022-03-01"
+  resource_id = azurerm_kubernetes_cluster.this.id
+
+  body = jsonencode({
+    properties = {
+      podIdentityProfile = {
+        enabled = true
+        userAssignedIdentities = []
+      }
     }
   })
-  template_content = <<TEMPLATE
-    {
-      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-      "contentVersion": "1.0.0.0",
-      "parameters": {
-        "aksCluster": {
-          "type": "string"
-        },
-        "logAnalyticsId": {
-          "type": "string"
-        }
-      },
-      "resources": [
-        { 
-          "type": "Microsoft.ContainerService/managedClusters", 
-          "apiVersion": "2021-07-01", 
-          "name": "[parameters('aksCluster')]", 
-          "location": "[resourceGroup().location]",
-          "properties": {
-            "podIdentityProfile": {
-              "enabled": true
-            },
-            "securityProfile": { 
-              "azureDefender": { 
-                "enabled": true, 
-                "logAnalyticsWorkspaceResourceId": "[parameters('logAnalyticsId')]"
-              }
-            }
-          }
-        }
-      ]
-    }
-TEMPLATE
 }
 
 resource "azurerm_role_assignment" "aks" {
@@ -307,11 +277,9 @@ resource "azurerm_mssql_server" "this" {
 
 }
 
-resource "azurerm_sql_database" "this" {
+resource "azurerm_mssql_database" "this" {
   name                = "todo"
-  resource_group_name = azurerm_resource_group.this.name
-  location            = local.location
-  server_name         = azurerm_mssql_server.this.name
+  server_id           = azurerm_mssql_server.this.id
 }
 
 resource "azurerm_mssql_firewall_rule" "home" {
@@ -325,7 +293,7 @@ resource "azurerm_log_analytics_workspace" "this" {
   name                = "${local.resource_name}-logs"
   location            = azurerm_resource_group.this.location
   resource_group_name = azurerm_resource_group.this.name
-  sku                 = "pergb2018"
+  sku                 = "PerGB2018"
 }
 
 resource "azurerm_log_analytics_solution" "this" {

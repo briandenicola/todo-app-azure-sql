@@ -320,8 +320,7 @@ resource "azurerm_role_assignment" "azurerm_application_insights" {
 
 resource "helm_release" "azure-workload-identity" {
   depends_on = [
-    azurerm_kubernetes_cluster.this,
-    azurerm_resource_group_template_deployment.this
+    azurerm_kubernetes_cluster.this
   ]
   name              = "azure-workload-identity"
   repository        = "https://azure.github.io/azure-workload-identity/charts"

@@ -7,8 +7,12 @@ terraform {
     }
     azapi = {
       source = "Azure/azapi"
+      version = "0.1.1"
     }
   }
+}
+
+provider "azapi" {
 }
 
 provider "azurerm" {
@@ -228,14 +232,13 @@ resource "azapi_update_resource" "this" {
     azurerm_kubernetes_cluster.this
   ]
 
-  type        = "Microsoft.ContainerService/managedClusters@2022-03-01"
+  type        = "Microsoft.ContainerService/managedClusters@2021-07-01"
   resource_id = azurerm_kubernetes_cluster.this.id
 
   body = jsonencode({
     properties = {
       podIdentityProfile = {
         enabled = true
-        userAssignedIdentities = []
       }
     }
   })

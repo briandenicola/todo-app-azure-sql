@@ -55,9 +55,6 @@ ALTER ROLE db_datawriter ADD MEMBER [${MSI_IDENTITY_NAME}]
 CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
 ```
 
-### Notes:
-* Add AKS's outbound IP Address to the Azure SQL Firewall which can be found in the AKS Node Resource Group
-
 ## Deploy API
 ```bash
 cd pod-identities/src
@@ -84,9 +81,6 @@ ALTER ROLE db_datareader ADD MEMBER [${AZURE_AD_SPN}]
 ALTER ROLE db_datawriter ADD MEMBER [${AZURE_AD_SPN}]
 CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
 ```
-
-### Notes
-* Add AKS's outbound IP Address to the Azure SQL Firewall which can be found in the AKS Node Resource Group
 
 ## Deploy API
 ```bash

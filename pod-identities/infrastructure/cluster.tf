@@ -65,3 +65,8 @@ resource "azapi_update_resource" "this" {
     }
   })
 }
+
+data "azurerm_public_ip" "aks" {
+  name                = reverse(split("/", tolist(azurerm_kubernetes_cluster.this.network_profile.0.load_balancer_profile.0.effective_outbound_ips)[0]))[0]
+  resource_group_name = azurerm_kubernetes_cluster.this.node_resource_group
+}

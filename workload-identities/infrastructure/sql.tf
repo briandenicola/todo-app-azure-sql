@@ -26,3 +26,10 @@ resource "azurerm_mssql_firewall_rule" "home" {
   end_ip_address   = "${chomp(data.http.myip.body)}"
 }
 
+resource "azurerm_mssql_firewall_rule" "aks" {
+  name             = "AKS"
+  server_id        = azurerm_mssql_server.this.id
+  start_ip_address = data.azurerm_public_ip.aks.ip_address
+  end_ip_address   = data.azurerm_public_ip.aks.ip_address
+}
+

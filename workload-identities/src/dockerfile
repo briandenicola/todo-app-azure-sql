@@ -6,7 +6,7 @@ RUN dotnet restore
 RUN dotnet publish -c Release --nologo -o publish/linux
 
 #Build runtime image
-FROM mcr.microsoft.com/dotnet/runtime-deps:6.0.4-alpine3.15-amd64
+FROM mcr.microsoft.com/dotnet/runtime-deps:6.0
 WORKDIR /app
 COPY --from=builder /src/publish/linux/todoapi .
 COPY appsettings.json .

@@ -65,6 +65,13 @@ helm upgrade -i podid . --set "COMMIT_VERSION=1.0" --set "ACR_NAME=${existing_do
 ```
 
 # Workload Identity Example
+## Prerequisties 
+* azure-cli -- version >= 2.40 (Required for `az identity federated-credential` command )
+* az feature register --name EnableWorkloadIdentityPreview --namespace Microsoft.ContainerService
+* az feature register --name EnableOIDCIssuerPreview --namespace Microsoft.ContainerService
+* az feature list --namespace Microsoft.ContainerService -o table | grep -i Registering
+* az provider register --namespace Microsoft.ContainerService
+
 ## Infrastructure Setup
 ```bash
 cd workload-identities/infrastructure

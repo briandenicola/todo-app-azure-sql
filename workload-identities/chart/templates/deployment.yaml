@@ -27,6 +27,9 @@ spec:
   minReadySeconds: 5
   template:
     metadata:
+      annotations: 
+        azure.workload.identity/inject-proxy-sidecar: "true"
+        azure.workload.identity/proxy-sidecar-port: "8080"
       labels:
         app: todoapi
     spec:

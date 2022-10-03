@@ -78,7 +78,7 @@ cd workload-identities/infrastructure
 terraform init
 terraform apply
 az aks get-credentials -n ${CLUSTER_NAME} -g ${CLUSTER_RG}
-./scripts/workload-identity.sh --cluster-name ${aks_cluster_name} --resource-grou ${MANAGED_IDENITYT_RG}
+./scripts/workload-identity.sh --cluster-name ${aks_cluster_name} --resource-group ${MANAGED_IDENTITY_RG}
 ```
 
 ## SQL Setup

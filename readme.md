@@ -71,14 +71,14 @@ cd workload-identities/infrastructure
 terraform init
 terraform apply
 az aks get-credentials -n ${CLUSTER_NAME} -g ${CLUSTER_RG}
-./scripts/workload-identity.sh --cluster-name ${aks_cluster_name} 
+./scripts/workload-identity.sh --cluster-name ${aks_cluster_name} --resource-grou ${MANAGED_IDENITYT_RG}
 ```
 
 ## SQL Setup
 ```sql
 CREATE USER [${AZURE_AD_SPN}] FROM EXTERNAL PROVIDER
-ALTER ROLE db_datareader ADD MEMBER [${AZURE_AD_SPN}]
-ALTER ROLE db_datawriter ADD MEMBER [${AZURE_AD_SPN}]
+ALTER ROLE db_datareader ADD MEMBER [${MSI_IDENTITY_NAME}]
+ALTER ROLE db_datawriter ADD MEMBER [${MSI_IDENTITY_NAME}]
 CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [IsComplete] BIT);
 ```
 
@@ -88,7 +88,7 @@ cd workload-identities/src
 docker build -t ${existing_docker_repo}/todoapi:1.0 .
 docker push ${existing_docker_repo}/todoapi:1.0
 cd workload-identities/chart
-helm upgrade -i wki . --set "COMMIT_VERSION=1.0" --set "ACR_NAME=existing_docker_repo" --set "APP_NAME=${app_name_from_terraform}" --set "ARM_WORKLOAD_APP_ID=${workload_app_id} --set "ARM_TENANT_ID=${azure_ad_tenant_id}"
+helm upgrade -i wki . --set "COMMIT_VERSION=1.0" --set "ACR_NAME=existing_docker_repo" --set "APP_NAME=${app_name_from_terraform}" --set "ARM_WORKLOAD_APP_ID=${managed_identity_client_id} --set "ARM_TENANT_ID=${azure_ad_tenant_id}"
 ```
 
 # Testing

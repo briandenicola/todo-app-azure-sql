@@ -5,14 +5,18 @@ terraform {
       source = "hashicorp/azurerm"
       version = "3.24.0"
     }
-    azuread = {
+    azapi = {
+      source = "Azure/azapi"
+      version = "0.1.1"
+    }
+    /*azuread = {
       source = "hashicorp/azuread"
       version = "2.18.0"
     }
     helm = {
       source = "hashicorp/helm"
       version = "2.6.0"
-    }
+    }*/
   }
 }
 
@@ -20,6 +24,7 @@ provider "azurerm" {
   features  {}
 }
 
+/*
 provider "helm" {
   kubernetes {
     host                   = azurerm_kubernetes_cluster.this.kube_config.0.host
@@ -31,4 +36,4 @@ provider "helm" {
     password               = azurerm_kubernetes_cluster.this.kube_config.0.password
     
   }
-}
+}*/

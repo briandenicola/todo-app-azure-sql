@@ -1,4 +1,6 @@
-resource "helm_release" "azure-workload-identity" {
+#Moved to aks --enable-oidc-issuer --enable-workload-identity  extensions
+
+/*resource "helm_release" "azure-workload-identity" {
   depends_on = [
     azurerm_kubernetes_cluster.this
   ]
@@ -12,5 +14,4 @@ resource "helm_release" "azure-workload-identity" {
     name  = "azureTenantID"
     value = data.azurerm_client_config.current.tenant_id
   }
-}
-
+}*/

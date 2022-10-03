@@ -7,7 +7,6 @@ RUN dotnet publish -c Release --nologo -o publish/linux
 
 #Build runtime image
 FROM mcr.microsoft.com/dotnet/runtime-deps:6.0
-RUN apk add --no-cache gcompat 
 
 WORKDIR /app
 COPY --from=builder /src/publish/linux/todoapi .

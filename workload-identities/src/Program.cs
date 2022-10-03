@@ -1,5 +1,6 @@
 Uri keyVaultUri;
 IConfigurationRoot config;
+SqlConnectionStringBuilder connection;
 string appInsights;;
 
 {
@@ -17,13 +18,14 @@ string appInsights;;
     config = builder.Build();
     keyVaultUri = Helpers.GetKeyVaultUri(config["keyvault"]);
     appInsights = config["appinsights"];
+    connection = Helpers.BuildAzureConnectionString(config["azuresql"], clientid: config["clientid"]);
 }
 
 {   
     var builder = WebApplication.CreateBuilder();
 
     builder.AddCustomApplicationInsightsConfiguration(appInsights);
-    builder.AddCustomSQLAuthentication(config["azuresql"]);
+    //builder.AddCustomSQLAuthentication(config["azuresql"]);
     
     if( keyVaultUri is not null ) {
         await builder.AddCustomKeyVaultConfiguration(keyVaultUri);
@@ -32,6 +34,12 @@ string appInsights;;
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     
+    builder.Services.AddDbContext<TodoDbContext>(    
+        options => options.UseSqlServer(
+            connection.ConnectionString
+        )
+    );
+
     var app = builder.Build();
     app.Logger.LogInformation("Application is ready to run."); 
     app.MapControllers();

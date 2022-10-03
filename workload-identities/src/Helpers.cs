@@ -13,14 +13,16 @@ public class Helpers
         return null;
     }
 
-    public static SqlConnectionStringBuilder BuildAzureConnectionString( string sqlServerName, string catalog = "todo" )
+    public static SqlConnectionStringBuilder BuildAzureConnectionString( string sqlServerName, string clientid, string catalog = "todo" )
     {
         return new SqlConnectionStringBuilder
         {
             DataSource = $"tcp:{sqlServerName}.database.windows.net,1433",
             InitialCatalog = catalog,
             TrustServerCertificate = false,
-            Encrypt = true
+            Encrypt = true,
+            Authentication = SqlAuthenticationMethod.ActiveDirectoryManagedIdentity,
+            UserID = clientid,
         };
 
     }

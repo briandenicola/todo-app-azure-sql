@@ -157,7 +157,7 @@ resource "azurerm_network_security_group" "this" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = "${chomp(data.http.myip.body)}/32"
+    source_address_prefix      = "${chomp(data.http.myip.response_body)}/32"
     destination_address_prefix = "*"
   }
 }
@@ -257,6 +257,6 @@ resource "azurerm_mssql_firewall_rule" "vm" {
 resource "azurerm_mssql_firewall_rule" "home" {
   name             = "AllowHomeNetwork"
   server_id        = azurerm_mssql_server.this.id
-  start_ip_address = "${chomp(data.http.myip.body)}"
-  end_ip_address   = "${chomp(data.http.myip.body)}"
+  start_ip_address = "${chomp(data.http.myip.response_body)}"
+  end_ip_address   = "${chomp(data.http.myip.response_body)}"
 }

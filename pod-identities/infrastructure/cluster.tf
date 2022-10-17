@@ -5,7 +5,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   node_resource_group       = "${local.resource_name}_k8s_nodes_rg"
   dns_prefix                = "${local.aks_name}"
   sku_tier                  = "Paid"
-  api_server_authorized_ip_ranges = ["${chomp(data.http.myip.body)}/32"]
+  api_server_authorized_ip_ranges = ["${chomp(data.http.myip.response_body)}/32"]
 
   identity {
     type                      = "UserAssigned"

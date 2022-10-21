@@ -77,8 +77,6 @@ helm upgrade -i podid . --set "COMMIT_VERSION=1.0" --set "ACR_NAME=${existing_do
 cd workload-identities/infrastructure
 terraform init
 terraform apply
-az aks get-credentials -n ${CLUSTER_NAME} -g ${CLUSTER_RG}
-./scripts/workload-identity.sh --cluster-name ${aks_cluster_name} --resource-group ${MANAGED_IDENTITY_RG}
 ```
 
 ## SQL Setup

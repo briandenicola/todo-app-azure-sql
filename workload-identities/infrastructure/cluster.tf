@@ -6,6 +6,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   dns_prefix                = "${local.aks_name}"
   sku_tier                  = "Paid"
   oidc_issuer_enabled       = true
+  workload_identity_enabled = true
   api_server_authorized_ip_ranges = ["${chomp(data.http.myip.response_body)}/32"]
 
   identity {
@@ -41,25 +42,6 @@ resource "azurerm_kubernetes_cluster" "this" {
     log_analytics_workspace_id = azurerm_log_analytics_workspace.this.id
   }
 
-}
-
-resource "azapi_update_resource" "this" {
-  depends_on = [
-    azurerm_kubernetes_cluster.this
-  ]
-
-  type        = "Microsoft.ContainerService/managedClusters@2022-09-02-preview"
-  resource_id = azurerm_kubernetes_cluster.this.id
-
-  body = jsonencode({
-    properties = {
-      securityProfile = {
-        workloadIdentity = {
-          enabled = true
-        }
-      }
-    }
-  })
 }
 
 data "azurerm_public_ip" "aks" {

@@ -7,7 +7,7 @@ terraform {
     }
     azapi = {
       source = "Azure/azapi"
-      version = "0.1.1"
+      version = "1.1.0"
     }
     azuread = {
       source = "hashicorp/azuread"
@@ -17,7 +17,11 @@ terraform {
 }
 
 provider "azurerm" {
-  features  {}
+  features {
+    resource_group {
+      prevent_deletion_if_contains_resources = false
+    }
+  }
 }
 
 provider "azuread" {

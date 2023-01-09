@@ -13,6 +13,16 @@ output "AKS_CLUSTER_NAME" {
     sensitive = false
 }
 
+output "AKS_OUTBOUND_IP" {
+    value = data.azurerm_public_ip.aks.ip_address
+    sensitive = false
+}
+
+output "AKS_NODE_POOL_IDENTITY" {
+    value = "${azurerm_kubernetes_cluster.this.name}-agentpool"
+    sensitive = false
+}
+
 output "ARM_WORKLOAD_APP_ID" {
     value = azurerm_user_assigned_identity.aks_pod_identity.client_id
     sensitive = false

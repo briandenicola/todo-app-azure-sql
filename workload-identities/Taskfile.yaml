@@ -1,8 +1,10 @@
 version: '3'
 
 env:
-  ENVIRONMENT: dev
-
+  ACR_NAME: bjdcsa
+  ACR_RG: Core_ContainerRepo_RG
+  COMMIT_VERSION: workloadid-9cc7fb7f16eg
+  
 tasks:
   environment:
     cmds:
@@ -23,7 +25,15 @@ tasks:
 
   deploy:
     cmds:
-    - helm upgrade -i workloadid --set APP_NAME={{.APP_NAME}} --set ARM_WORKLOAD_APP_ID={{.ARM_WORKLOAD_APP_ID}} --set ARM_TENANT_ID={{.ARM_TENANT_ID}} --set APP_INSIGHTS={{.APP_INSIGHTS}} ./chart
+    - helm upgrade -i workloadid 
+        --set ACR_NAME={{.ACR_NAME}} \
+        --set COMMIT_VERSION={{.COMMIT_VERSION}} \
+        --set APP_NAME={{.APP_NAME}} \
+        --set ARM_WORKLOAD_APP_ID={{.ARM_WORKLOAD_APP_ID}} \
+        --set ARM_TENANT_ID={{.ARM_TENANT_ID}} \
+        --set APP_INSIGHTS={{.APP_INSIGHTS}} \
+        ./chart
+    - ./scripts/acr-update.sh -g {{.ACR_RG}} -n {{.ACR_NAME}}
     vars:
       APP_NAME: 
         sh: terraform -chdir=./infrastructure output -raw APP_NAME

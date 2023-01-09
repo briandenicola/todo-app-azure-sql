@@ -101,6 +101,7 @@ helm upgrade -i wki \
     --set ARM_WORKLOAD_APP_ID=${ARM_WORKLOAD_APP_ID} \
     --set ARM_TENANT_ID=${ARM_TENANT_ID} \
     --set APP_INSIGHTS=${APP_INSIGHTS} \
+    --set NAMESPACE=default \
     .
 ```
 
@@ -109,8 +110,7 @@ helm upgrade -i wki \
 task environment
 ```
 * Useful when the existing docker registry already has the code built.
-* Update chart/values.yaml with the COMMIT_VERSION and ACR_NAME names
-* Don't forget to set ACR RBAC and Network firewall rules
+
 
 # Testing
 ## Virtual Machine 

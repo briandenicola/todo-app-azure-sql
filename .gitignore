@@ -361,5 +361,4 @@ source/ui/.env
 source/ui/build
 source/ui/src/config.json
 
-workload-identities/chart/values.yaml
 pod-identities/chart/values.yaml

@@ -21,7 +21,9 @@ while (( "$#" )); do
   esac
 done
 
-source ./scripts/setup-env.sh
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+source ${SCRIPT_DIR}/setup-env.sh
+
 ROLE_ID="7f951dda-4ed3-4680-a7ca-43fe172d538d"
 SUBSCRIPTION_ID=$(az account show -o tsv --query id)
 SCOPE_ID="/subscriptions/${SUBSCRIPTION_ID}/resourcegroups/${ACR_RG}/providers/Microsoft.ContainerRegistry/registries/${ACR}"

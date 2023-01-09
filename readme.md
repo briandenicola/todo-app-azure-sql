@@ -89,12 +89,28 @@ CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [Is
 
 ## Deploy API
 ```bash
+source ./scripts/setup-env.sh
 cd workload-identities/src
 docker build -t ${existing_docker_repo}/todoapi:1.0 .
 docker push ${existing_docker_repo}/todoapi:1.0
 cd workload-identities/chart
-helm upgrade -i wki . --set "COMMIT_VERSION=1.0" --set "ACR_NAME=existing_docker_repo" --set "APP_NAME=${app_name_from_terraform}" --set "ARM_WORKLOAD_APP_ID=${managed_identity_client_id} --set "ARM_TENANT_ID=${azure_ad_tenant_id}"
+helm upgrade -i wki \
+    --set COMMIT_VERSION=1.0 \
+    --set ACR_NAME=${existing_docker_repo} \
+    --set APP_NAME=${APP_NAME} \
+    --set ARM_WORKLOAD_APP_ID=${ARM_WORKLOAD_APP_ID} \
+    --set ARM_TENANT_ID=${ARM_TENANT_ID} \
+    --set APP_INSIGHTS=${APP_INSIGHTS} \
+    .
 ```
+
+### Alternatively
+```
+task environment
+```
+* Useful when the existing docker registry already has the code built.
+* Update chart/values.yaml with the COMMIT_VERSION and ACR_NAME names
+* Don't forget to set ACR RBAC and Network firewall rules
 
 # Testing
 ## Virtual Machine 

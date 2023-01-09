@@ -1,0 +1,44 @@
+version: '3'
+
+env:
+  ENVIRONMENT: dev
+
+tasks:
+  environment:
+    cmds:
+    - terraform -chdir=./infrastructure init
+    - terraform -chdir=./infrastructure apply -auto-approve
+    - task: creds
+    - task: deploy
+
+  creds:
+    cmds:
+    - az aks get-credentials -g {{.RG}} -n {{.AKS}} --overwrite-existing
+    - kubelogin convert-kubeconfig -l azurecli
+    vars:
+      RG: 
+        sh: terraform -chdir=./infrastructure output -raw AKS_RESOURCE_GROUP
+      AKS: 
+        sh: terraform -chdir=./infrastructure output -raw AKS_CLUSTER_NAME
+
+  deploy:
+    cmds:
+    - helm upgrade -i workloadid --set APP_NAME={{.APP_NAME}} --set ARM_WORKLOAD_APP_ID={{.ARM_WORKLOAD_APP_ID}} --set ARM_TENANT_ID={{.ARM_TENANT_ID}} --set APP_INSIGHTS={{.APP_INSIGHTS}} ./chart
+    vars:
+      APP_NAME: 
+        sh: terraform -chdir=./infrastructure output -raw APP_NAME
+      ARM_WORKLOAD_APP_ID: 
+        sh: terraform -chdir=./infrastructure output -raw ARM_WORKLOAD_APP_ID
+      ARM_TENANT_ID:
+        sh: terraform -chdir=./infrastructure output -raw ARM_TENANT_ID
+      APP_INSIGHTS:
+        sh: terraform -chdir=./infrastructure output -raw APP_INSIGHTS
+
+  clean:
+    cmds:
+    - cd infrastructure ;
+      rm -rf .terraform.lock.hcl .terraform terraform.tfstate terraform.tfstate.backup .terraform.tfstate.lock.info
+    - az group delete -n {{.RG}} --yes || true
+    vars:
+      RG: 
+        sh: terraform -chdir=./infrastructure output -raw AKS_RESOURCE_GROUP

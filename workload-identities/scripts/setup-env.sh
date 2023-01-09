@@ -1,0 +1,6 @@
+export RG=$(terraform -chdir=./infrastructure output -raw AKS_RESOURCE_GROUP)
+export AKS=$(terraform -chdir=./infrastructure output -raw AKS_CLUSTER_NAME)
+export APP_NAME=$(terraform -chdir=./infrastructure output -raw APP_NAME)
+export ARM_WORKLOAD_APP_ID=$(terraform -chdir=./infrastructure output -raw ARM_WORKLOAD_APP_ID)
+export ARM_TENANT_ID=$(terraform -chdir=./infrastructure output -raw ARM_TENANT_ID)
+export APP_INSIGHTS=$(terraform -chdir=./infrastructure output -raw APP_INSIGHTS)

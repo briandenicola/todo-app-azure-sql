@@ -7,6 +7,7 @@ env:
   
 tasks:
   environment:
+    desc: Creates Azure infrastructure and deploys application code
     cmds:
     - terraform -chdir=./infrastructure init
     - terraform -chdir=./infrastructure apply -auto-approve
@@ -14,6 +15,7 @@ tasks:
     - task: deploy
 
   creds:
+    desc: Gets credential file for newly created AKS cluster
     cmds:
     - az aks get-credentials -g {{.RG}} -n {{.AKS}} --overwrite-existing
     - kubelogin convert-kubeconfig -l azurecli
@@ -24,6 +26,7 @@ tasks:
         sh: terraform -chdir=./infrastructure output -raw AKS_CLUSTER_NAME
 
   deploy:
+    desc: Deploys Todo application via Helm
     cmds:
     - helm upgrade -i workloadid --set ACR_NAME="{{.ACR_NAME}}" --set COMMIT_VERSION={{.COMMIT_VERSION}} --set APP_NAME={{.APP_NAME}} --set ARM_WORKLOAD_APP_ID={{.ARM_WORKLOAD_APP_ID}} --set ARM_TENANT_ID={{.ARM_TENANT_ID}} --set APP_INSIGHTS="{{.APP_INSIGHTS}}" ./chart
     - ./scripts/acr-update.sh -g {{.ACR_RG}} -n {{.ACR_NAME}}
@@ -38,6 +41,7 @@ tasks:
         sh: terraform -chdir=./infrastructure output -raw APP_INSIGHTS
 
   clean:
+    desc: Destorys Azure infrastructure and cleans up terraform state files
     cmds:
     - cd infrastructure ;
       rm -rf .terraform.lock.hcl .terraform terraform.tfstate terraform.tfstate.backup .terraform.tfstate.lock.info

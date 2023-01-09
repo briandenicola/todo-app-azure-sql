@@ -25,7 +25,7 @@ tasks:
 
   deploy:
     cmds:
-    - helm upgrade -i workloadid 
+    - helm upgrade -i workloadid \
         --set ACR_NAME={{.ACR_NAME}} \
         --set COMMIT_VERSION={{.COMMIT_VERSION}} \
         --set APP_NAME={{.APP_NAME}} \

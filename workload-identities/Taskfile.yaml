@@ -1,7 +1,7 @@
 version: '3'
 
 env:
-  ACR_NAME: bjdcsa
+  ACR_NAME: bjdcsa.azurecr.io
   ACR_RG: Core_ContainerRepo_RG
   COMMIT_VERSION: workloadid-9cc7fb7f16eg
   

@@ -40,8 +40,10 @@ ssh manager@${vm-pip}
 cd pod-identities/infrastructure
 terraform init
 terraform apply
-./scripts/pod-identity.sh --cluster-name ${aks_cluster_name} -n default -i ${managed_identity_name}
+source ./scripts/setup-env.sh
+./scripts/pod-identity.sh --cluster-name ${AKS} -n default -i ${MSI_SELECTOR}
 ```
+
 ### Notes
 * The cluster name and managed identity name will be known after terraform creates the resources in Azure.
 * The managed identity name should be in the form of ${aks_cluster_name}-default-identity
@@ -57,20 +59,26 @@ CREATE TABLE dbo.Todos ( [Id] INT PRIMARY KEY, [Name] VARCHAR(250) NOT NULL, [Is
 
 ## Deploy API
 ```bash
+source ./scripts/setup-env.sh
 cd pod-identities/src
 docker build -t ${existing_docker_repo}/todoapi:1.0 .
 docker push ${existing_docker_repo}/todoapi:1.0
 cd pod-identities/chart
-helm upgrade -i podid . --set "COMMIT_VERSION=1.0" --set "ACR_NAME=${existing_docker_repo}" --set "APP_NAME=${app_name_from_terraform}" --set "MSI_SELECTOR=${managed_identity_name}"
+helm upgrade -i podid 
+    --set "COMMIT_VERSION=1.0" \
+    --set "ACR_NAME=${existing_docker_repo}" \
+    --set "APP_NAME=${APP_NAME}" \
+    --set "MSI_SELECTOR=${MSI_SELECTOR}" \
+    --set "MSI_CLIENTID=${MSI_CLIENTID}" \
+    --set "APP_INSIGHTS=${APP_INSIGHTS}"
+    .
 ```
 
 # Workload Identity Example
 ## Prerequisties 
 * azure-cli -- version >= 2.40 (Required for `az identity federated-credential` command )
-* az feature register --name EnableWorkloadIdentityPreview --namespace Microsoft.ContainerService
-* az feature register --name EnableOIDCIssuerPreview --namespace Microsoft.ContainerService
-* az feature list --namespace Microsoft.ContainerService -o table | grep -i Registering
-* az provider register --namespace Microsoft.ContainerService
+* EnableWorkloadIdentityPreview and EnableOIDCIssuerPreview preview features must be registered
+    * This [script](https://github.com/briandenicola/kubernetes-cluster-setup/blob/main/scripts/aks-preview-features.sh) can be used to register these and other preview features.
 
 ## Infrastructure Setup
 ```bash

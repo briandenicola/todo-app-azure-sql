@@ -1,0 +1,11 @@
+SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
+INFRA_PATH=$(realpath "${SCRIPT_DIR}/../infrastructure")
+
+export RG=$(terraform -chdir=${INFRA_PATH} output -raw AKS_RESOURCE_GROUP)
+export AKS=$(terraform -chdir=${INFRA_PATH} output -raw AKS_CLUSTER_NAME)
+export APP_NAME=$(terraform -chdir=${INFRA_PATH} output -raw APP_NAME)
+export MSI_SELECTOR=$(terraform -chdir=${INFRA_PATH} output -raw MSI_SELECTOR)
+export MSI_CLIENTID=$(terraform -chdir=${INFRA_PATH} output -raw MSI_CLIENTID)
+export APP_INSIGHTS=$(terraform -chdir=${INFRA_PATH} output -raw APP_INSIGHTS)
+export AKS_NODE_POOL_IDENTITY=$(terraform -chdir=${INFRA_PATH} output -raw AKS_NODE_POOL_IDENTITY)
+export AKS_OUTBOUND_IP=$(terraform -chdir=${INFRA_PATH} output -raw AKS_OUTBOUND_IP)

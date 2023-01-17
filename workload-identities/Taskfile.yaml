@@ -6,7 +6,7 @@ env:
   COMMIT_VERSION: workloadid-9cc7fb7f16eg
   
 tasks:
-  environment:
+  up:
     desc: Creates Azure infrastructure and deploys application code
     cmds:
     - terraform -chdir=./infrastructure init
@@ -40,7 +40,7 @@ tasks:
       APP_INSIGHTS:
         sh: terraform -chdir=./infrastructure output -raw APP_INSIGHTS
 
-  clean:
+  down:
     desc: Destorys Azure infrastructure and cleans up terraform state files
     cmds:
     - cd infrastructure ;

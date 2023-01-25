@@ -13,6 +13,7 @@ tasks:
     - terraform -chdir=./infrastructure apply -auto-approve
     - task: creds
     - task: deploy
+    - task: update-firewalls
 
   creds:
     desc: Gets credential file for newly created AKS cluster
@@ -29,7 +30,6 @@ tasks:
     desc: Deploys Todo application via Helm
     cmds:
     - helm upgrade -i workloadid --set ACR_NAME="{{.ACR_NAME}}" --set COMMIT_VERSION={{.COMMIT_VERSION}} --set APP_NAME={{.APP_NAME}} --set ARM_WORKLOAD_APP_ID={{.ARM_WORKLOAD_APP_ID}} --set ARM_TENANT_ID={{.ARM_TENANT_ID}} --set APP_INSIGHTS="{{.APP_INSIGHTS}}" ./chart
-    - ./scripts/acr-update.sh -g {{.ACR_RG}} -n {{.ACR_NAME}}
     vars:
       APP_NAME: 
         sh: terraform -chdir=./infrastructure output -raw APP_NAME
@@ -39,6 +39,11 @@ tasks:
         sh: terraform -chdir=./infrastructure output -raw ARM_TENANT_ID
       APP_INSIGHTS:
         sh: terraform -chdir=./infrastructure output -raw APP_INSIGHTS
+
+  update-firewalls:
+    desc: Updates firewall rules for Azure Container Registry
+    cmds:
+    - ./scripts/acr-update.sh -g {{.ACR_RG}} -n {{.ACR_NAME}}
 
   down:
     desc: Destorys Azure infrastructure and cleans up terraform state files

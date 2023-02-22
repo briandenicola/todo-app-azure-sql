@@ -1,0 +1,32 @@
+name: Todoapi CI/CD
+on:
+  workflow_dispatch:
+  push:
+    branches: 
+    - main
+    paths: 
+    - 'workload-identities/src/*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CONTAINER_NAME: todoapi
+      TAG_NAME: workloadid-9cc7fb7f16eg
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build and push container image to registry
+        shell: bash
+        run: |
+          cd workload-identities/src
+          az acr login -n ${{ secrets.ACR_NAME }}
+          docker build -t ${{ secrets.ACR_NAME }}/${{ env.CONTAINER_NAME }}:${{ env.TAG_NAME }} .
+          docker push ${{ secrets.ACR_NAME }}/${{ env.CONTAINER_NAME }}:${{ env.TAG_NAME }}

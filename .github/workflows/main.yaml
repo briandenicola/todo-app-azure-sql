@@ -28,7 +28,7 @@ jobs:
         with:
           context: ./workload-identities/src/
           push: true
-          tags: ${{ env.ACR_NAME }}/${{ env.CONTAINER_NAME }}:${{ env.TAG_NAME }}
+          tags: ${{ secrets.ACR_NAME }}/${{ env.CONTAINER_NAME }}:${{ env.TAG_NAME }}
           file: ./workload-identities/src/dockerfile
 
 #      - name: Build and push container image to registry

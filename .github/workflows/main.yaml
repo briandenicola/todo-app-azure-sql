@@ -23,6 +23,12 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.ACR_NAME }}
+          username: ${{ secrets.CLIENT_ID }}
+          password: ${{ secrets.CLIENT_SECRET }}
+
       - name: Build and push container image to registry
         uses: docker/build-push-action@v2
         with:

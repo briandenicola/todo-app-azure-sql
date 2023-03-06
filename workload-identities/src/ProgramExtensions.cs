@@ -25,23 +25,30 @@ public static class ProgramExtensions
     {
         builder.Logging.AddConsole();
         builder.Logging.AddApplicationInsights();
-        builder.Services.Configure<TelemetryConfiguration>(config =>  {
+
+        QuickPulseTelemetryProcessor processor = null;
+        builder.Services.Configure<TelemetryConfiguration>(config =>  
+        {    
             var credential = new DefaultAzureCredential();
             config.SetAzureTokenCredential(credential);
+
+            config.TelemetryProcessorChainBuilder
+                .Use(next =>
+                {
+                    processor = new QuickPulseTelemetryProcessor(next);
+                    return processor;
+                })
+                .Build();
         });
+
         builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
         {
             ConnectionString = aiConnectionString
         });
+
+        builder.Services.ConfigureTelemetryModule<QuickPulseTelemetryModule>( (module, o) =>
+        { 
+            module.RegisterTelemetryProcessor(processor);
+        });
     }
-
-    /*public static void AddCustomSQLAuthentication(this WebApplicationBuilder builder, String sqlServerName)
-    {
-        var connection = Helpers.BuildAzureConnectionString(sqlServerName);
-
-        builder.Services.AddDbContext<TodoDbContext>(    
-            options => options.UseSqlServer(connection.ConnectionString, o => o.EnableRetryOnFailure() )
-                              .AddInterceptors(new AadAuthenticationDbConnectionInterceptor())
-        );
-    }*/
 }

@@ -17,6 +17,8 @@ global using Microsoft.ApplicationInsights;
 global using Microsoft.ApplicationInsights.AspNetCore;
 global using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 global using Microsoft.ApplicationInsights.Extensibility;
+global using Microsoft.ApplicationInsights.DependencyCollector;
+global using Microsoft.ApplicationInsights.Extensibility.PerfCounterCollector.QuickPulse;
 
 global using Azure.Core;
 global using Azure.Identity;

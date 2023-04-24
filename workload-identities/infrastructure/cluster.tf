@@ -4,7 +4,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   location                  = azurerm_resource_group.this.location
   node_resource_group       = "${local.resource_name}_k8s_nodes_rg"
   dns_prefix                = "${local.aks_name}"
-  sku_tier                  = "Paid"
+  sku_tier                  = "Standard"
   oidc_issuer_enabled       = true
   workload_identity_enabled = true
   api_server_authorized_ip_ranges = ["${chomp(data.http.myip.response_body)}/32"]

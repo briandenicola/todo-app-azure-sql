@@ -6,7 +6,7 @@
 .terraform/
 .terraform.lock.hcl
 terraform.tfstate
-terraform.tfstate.bak
+terraform.tfstate.backup
 
 # User-specific files
 *.rsuser
@@ -353,12 +353,5 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
-infrastructure/terraform/terraform.tfstate
-infrastructure/terraform/terraform.tfstate.backup
-infrastructure/terraform/variables.tfvars
-infrastructure/terraform/.terraform/
-source/ui/.env
-source/ui/build
-source/ui/src/config.json
 
 pod-identities/chart/values.yaml

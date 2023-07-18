@@ -3,7 +3,7 @@ version: '3'
 env:
   ACR_NAME: bjdcsa
   ACR_RG: Core_ContainerRepo_RG
-  COMMIT_VERSION: workloadid-9cc7fb7f16ef
+  COMMIT_VERSION: workloadid-9cc7fb7f16eg 
   
 tasks:
   up:

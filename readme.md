@@ -133,10 +133,10 @@ curl -kv https://localhost:8443/api/todo/
 ```bash
 kubectl run --restart=Never --rm -it --image=bjd145/utils:2.2 utils
 kubectl exec -it utils -- bash
-curl -kv -X POST https://todoapi-svc:8443/api/todo/ -d '{"Id": 123456, "Name": "Take out trash"}' -H "Content-Type: application/json"
-curl -kv -X POST https://todoapi-svc:8443/api/todo/ -d '{"Id": 7891011, "Name": "Clean your bathroom"}' -H "Content-Type: application/json"
-curl -kv https://todoapi-svc:8443/api/todo/123456
-curl -kv https://todoapi-svc:8443/api/todo/
+curl -kv -X POST https://todoapi-svc.default:8443/api/todo/ -d '{"Id": 123456, "Name": "Take out trash"}' -H "Content-Type: application/json"
+curl -kv -X POST https://todoapi-svc.default:8443/api/todo/ -d '{"Id": 7891011, "Name": "Clean your bathroom"}' -H "Content-Type: application/json"
+curl -kv https://todoapi-svc.default:8443/api/todo/123456
+curl -kv https://todoapi-svc.default:8443/api/todo/
 ```
 
 # Reference 

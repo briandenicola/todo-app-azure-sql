@@ -25,7 +25,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   oidc_issuer_enabled          = true
   workload_identity_enabled    = true
   azure_policy_enabled         = true
-  local_account_disabled       = true
+  local_account_disabled       = false
   open_service_mesh_enabled    = false
   run_command_enabled          = false
   kubernetes_version           = local.kubernetes_version

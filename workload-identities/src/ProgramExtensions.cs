@@ -5,7 +5,9 @@ public static class ProgramExtensions
     public static async Task AddCustomKeyVaultConfiguration (this WebApplicationBuilder builder, Uri keyVaultUri, String certificateName = "my-wildcard-pfx-cert")
     {
         int port = 8443;
-        var keyVaultClient = new CertificateClient(keyVaultUri, new DefaultAzureCredential());
+        //var keyVaultClient = new CertificateClient(keyVaultUri, new DefaultAzureCredential());
+        var credential = new ChainedTokenCredential( new AzureCliCredential(), new ManagedIdentityCredential() );
+        var keyVaultClient = new CertificateClient(keyVaultUri, credential);
         var keyVaultCertificateX509 = (await keyVaultClient.DownloadCertificateAsync(certificateName)).Value;
 
         builder.WebHost.UseKestrel( opt => 

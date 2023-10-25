@@ -1,0 +1,18 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "bridge-to-kubernetes.resource",
+			"type": "bridge-to-kubernetes.resource",
+			"resource": "todoapi-svc",
+			"resourceType": "service",
+			"ports": [
+				8443
+			],
+			"targetCluster": "rhino-21312-aks",
+			"targetNamespace": "default",
+			"useKubernetesServiceEnvironmentVariables": true,
+			"isolateAs": "brian-bdc3"
+		}
+	]
+}

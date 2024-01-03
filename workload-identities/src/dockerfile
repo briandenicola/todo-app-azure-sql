@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS builder
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS builder
 
 WORKDIR /src/
 COPY . .
@@ -6,7 +6,7 @@ RUN dotnet restore
 RUN dotnet publish -c Release --nologo -o publish/linux
 
 #Build runtime image
-FROM mcr.microsoft.com/dotnet/runtime-deps:6.0
+FROM mcr.microsoft.com/dotnet/runtime-deps:8.0
 
 WORKDIR /app
 COPY --from=builder /src/publish/linux/todoapi .

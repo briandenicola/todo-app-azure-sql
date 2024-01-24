@@ -75,10 +75,10 @@ helm upgrade -i podid
 ```
 
 # Workload Identity Example
+This implentation is showcases Workload Identities with AKS workloads. [What are workload identities?](https://learn.microsoft.com/en-us/entra/workload-id/workload-identities-overview) covers the basics of workload identities. [Workload identities with AKS](https://learn.microsoft.com/en-us/azure/aks/workload-identity-overview?tabs=dotnet) covers the basics of workload identities with AKS.
+
 ## Prerequisties 
-* azure-cli -- version >= 2.40 (Required for `az identity federated-credential` command )
-* EnableWorkloadIdentityPreview and EnableOIDCIssuerPreview preview features must be registered
-    * This [script](https://github.com/briandenicola/kubernetes-cluster-setup/blob/main/scripts/aks-preview-features.sh) can be used to register these and other preview features.
+* Terraform
 
 ## Infrastructure Setup
 ```bash

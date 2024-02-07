@@ -42,13 +42,12 @@ locals {
     subnet_cidir                = cidrsubnet(local.vnet_cidr, 8, 2)
 }
 
-
 resource "azurerm_resource_group" "this" {
   name                  = "${local.resource_name}_rg"
   location              = local.location
   
   tags     = {
-    Application = "todo"
+    Application = "Todo Demo App"
     Components  = "aks; key vault; azure-sql; workload-identities"
     DeployedOn  = timestamp()
   }

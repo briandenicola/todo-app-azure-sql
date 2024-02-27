@@ -357,3 +357,4 @@ MigrationBackup/
 
 pod-identities/chart/values.yaml
 
+.DS_Store

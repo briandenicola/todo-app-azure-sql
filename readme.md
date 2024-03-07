@@ -115,7 +115,7 @@ helm upgrade -i wki \
 
 ### Alternatively
 ```
-task environment
+task up
 ```
 * Useful when the existing docker registry already has the code built.
 

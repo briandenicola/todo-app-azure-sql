@@ -14,6 +14,7 @@ tasks:
     - task: creds
     - task: deploy
     - task: update-firewalls
+    - task: update-sql
 
   creds:
     desc: Gets credential file for newly created AKS cluster
@@ -44,6 +45,11 @@ tasks:
     desc: Updates firewall rules for Azure Container Registry
     cmds:
     - ./scripts/acr-update.sh -g {{.ACR_RG}} -n {{.ACR_NAME}}
+
+  update-sql:
+    desc: Updates SQL Server with proper configuration
+    cmds:
+    - ./scripts/setup-sql.sh
 
   down:
     desc: Destroys all Azure resources and cleans up Terraform

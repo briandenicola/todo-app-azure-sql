@@ -49,38 +49,50 @@ resource "azurerm_windows_virtual_machine" "this" {
   }
 }
 
-# resource "azurerm_linux_virtual_machine" "this" {
-#   name                = "${local.resource_name}-vm"
-#   resource_group_name = azurerm_resource_group.this.name
-#   location            = azurerm_resource_group.this.location
-#   size                = "Standard_B2ms"
-#   admin_username      = "manager"
-#   network_interface_ids = [
-#     azurerm_network_interface.this.id,
-#   ]
+resource "azurerm_network_interface" "linux" {
+  name                = "${local.resource_name}-linux-nic"
+  location            = azurerm_resource_group.this.location
+  resource_group_name = azurerm_resource_group.this.name
 
-#   admin_ssh_key {
-#     username   = "manager"
-#     public_key = file("~/.ssh/id_rsa.pub")
-#   }
+  ip_configuration {
+    name                          = "internal"
+    subnet_id                     = azurerm_subnet.servers.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
 
-#   os_disk {
-#     caching              = "ReadWrite"
-#     storage_account_type = "Standard_LRS"
-#     name                 = "${local.resource_name}-osdisk" 
-#   }
+resource "azurerm_linux_virtual_machine" "this" {
+  name                = "${local.resource_name}-linux"
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  size                = var.vm_sku
+  admin_username      = "manager"
+  network_interface_ids = [
+    azurerm_network_interface.linux.id,
+  ]
 
-#   identity {
-#     type = "UserAssigned"
-#     identity_ids = [ 
-#         azurerm_user_assigned_identity.this.id
-#     ]
-#   }
+  admin_ssh_key {
+    username   = "manager"
+    public_key = file("~/.ssh/id_rsa.pub")
+  }
 
-#   source_image_reference {
-#     publisher = "Canonical"
-#     offer     = "UbuntuServer"
-#     sku       = "18.04-LTS"
-#     version   = "latest"
-#   }
-# }
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+    name                 = "${local.resource_name}-linux-osdisk" 
+  }
+
+  identity {
+    type = "UserAssigned"
+    identity_ids = [ 
+        azurerm_user_assigned_identity.this.id
+    ]
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
+    version   = "latest"
+  }
+}

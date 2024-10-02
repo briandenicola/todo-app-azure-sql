@@ -3,18 +3,34 @@ version: '3'
 env:
   ACR_NAME: bjdcsa
   ACR_RG: Core_ContainerRepo_RG
-  COMMIT_VERSION: workloadid-9cc7fb7f16eg 
+  COMMIT_VERSION: workloadid-9cc7fb7f16eg
+  DEFAULT_REGION: 
+  TAG: "Workload Identity Demo Application"
   
 tasks:
-  up:
-    desc: Creates Azure infrastructure and deploys application code
+  default:
     cmds:
+    - task --list 
+
+  up:
+    desc: Creates a complete {{.TAG}} environment
+    cmds:
+    - terraform -chdir=./infrastructure workspace new {{.REGION}} || true
+    - terraform -chdir=./infrastructure workspace select {{.REGION}}
     - terraform -chdir=./infrastructure init
-    - terraform -chdir=./infrastructure apply -auto-approve
-    - task: creds
-    - task: deploy
-    - task: update-firewalls
+    - task: apply
+    #- task: update-firewalls
     - task: update-sql
+    - task: deploy
+    vars: 
+      REGION: '{{default .DEFAULT_REGION .CLI_ARGS}}'  
+      
+  apply:
+    cmds:
+    - terraform -chdir=./infrastructure apply -auto-approve -var "region={{.REGION}}" -var "tags={{.TAG}}" 
+    - task: creds
+    vars: 
+      REGION: '{{default .DEFAULT_REGION .CLI_ARGS}}'
 
   creds:
     desc: Gets credential file for newly created AKS cluster
@@ -53,10 +69,7 @@ tasks:
 
   down:
     desc: Destroys all Azure resources and cleans up Terraform
+    dir: ./infrastructure
     cmds:
-    - az group list --tag Application="Todo Demo App" --query "[].name" -o tsv | xargs -ot -n 1 az group delete -y --no-wait -n || true
-    - cd infrastructure ;
-      rm -rf terraform.tfstate.d .terraform.lock.hcl .terraform terraform.tfstate terraform.tfstate.backup .terraform.tfstate.lock.info || true
-    vars:
-      RG:
-        sh: terraform -chdir=./infrastructure output -raw AKS_RESOURCE_GROUP
+    - az group list --tag Application="{{.TAG}}" --query "[].name" -o tsv | xargs -ot -n 1 az group delete -y --verbose --no-wait -n || true
+    - rm -rf terraform.tfstate.d .terraform.lock.hcl .terraform terraform.tfstate terraform.tfstate.backup .terraform.tfstate.lock.info || true

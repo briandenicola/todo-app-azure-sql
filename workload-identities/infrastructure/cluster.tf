@@ -5,7 +5,7 @@ data "azurerm_kubernetes_service_versions" "current" {
 locals {
   kubernetes_version = data.azurerm_kubernetes_service_versions.current.versions[length(data.azurerm_kubernetes_service_versions.current.versions) - 2]
   allowed_ip_range   = ["${chomp(data.http.myip.response_body)}/32"]
-  zones              = local.location == "northcentralus" ? null : ["1", "2", "3"]
+  zones = var.region == "northcentralus" || var.region == "canadaeast" ? null : var.zones
 }
 
 resource "tls_private_key" "rsa" {
@@ -17,7 +17,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   name                         = local.aks_name
   resource_group_name          = azurerm_resource_group.this.name
   location                     = azurerm_resource_group.this.location
-  node_resource_group          = "${local.resource_name}_k8s_nodes_rg"
+  node_resource_group          = "${local.resource_name}_aks_nodes_rg"
   dns_prefix                   = local.aks_name
   sku_tier                     = "Standard"
   automatic_channel_upgrade    = "patch"

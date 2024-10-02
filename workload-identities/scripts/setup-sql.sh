@@ -25,7 +25,6 @@ SQL_DB_NAME=todo
 
 export OBJECT_ID=`az ad signed-in-user show -o tsv --query id`
 export AZURE_USERNAME=`az ad signed-in-user show -o tsv --query userPrincipalName`
-export MANAGED_IDENTITY_NAME
 echo "Setting ${AZURE_USERNAME} as the default Entra ID Admin for ${SQL_SERVER_NAME} . . ."
 az sql server ad-admin update --display-name ${AZURE_USERNAME}  --object-id ${OBJECT_ID} --resource-group $RG --server ${SQL_SERVER_NAME}
 

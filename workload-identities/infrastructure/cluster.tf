@@ -5,7 +5,7 @@ data "azurerm_kubernetes_service_versions" "current" {
 locals {
   kubernetes_version = data.azurerm_kubernetes_service_versions.current.versions[length(data.azurerm_kubernetes_service_versions.current.versions) - 2]
   allowed_ip_range   = ["${chomp(data.http.myip.response_body)}/32"]
-  zones = var.region == "northcentralus" || var.region == "canadaeast" ? null : var.zones
+  zones              = var.region == "northcentralus" || var.region == "canadaeast" ? null : var.zones
 }
 
 resource "tls_private_key" "rsa" {
@@ -20,8 +20,8 @@ resource "azurerm_kubernetes_cluster" "this" {
   node_resource_group          = "${local.resource_name}_aks_nodes_rg"
   dns_prefix                   = local.aks_name
   sku_tier                     = "Standard"
-  automatic_channel_upgrade    = "patch"
-  node_os_channel_upgrade      = "NodeImage"
+  automatic_upgrade_channel    = "patch"
+  node_os_upgrade_channel      = "NodeImage"
   oidc_issuer_enabled          = true
   workload_identity_enabled    = true
   azure_policy_enabled         = true
@@ -48,17 +48,17 @@ resource "azurerm_kubernetes_cluster" "this" {
   }
 
   default_node_pool {
-    name                = "default"
-    node_count          = 1
-    vm_size             = var.vm_sku
-    zones               = local.zones
-    os_disk_size_gb     = 100
-    vnet_subnet_id      = azurerm_subnet.this.id
-    type                = "VirtualMachineScaleSets"
-    enable_auto_scaling = true
-    min_count           = 1
-    max_count           = 3
-    max_pods            = 40
+    name                 = "default"
+    node_count           = 1
+    vm_size              = var.vm_sku
+    zones                = local.zones
+    os_disk_size_gb      = 100
+    vnet_subnet_id       = azurerm_subnet.this.id
+    type                 = "VirtualMachineScaleSets"
+    auto_scaling_enabled = true
+    min_count            = 1
+    max_count            = 3
+    max_pods             = 40
   }
 
   network_profile {

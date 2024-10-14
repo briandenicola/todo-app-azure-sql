@@ -4,7 +4,7 @@ env:
   ACR_NAME: bjdcsa
   ACR_RG: Core_ContainerRepo_RG
   COMMIT_VERSION: workloadid-9cc7fb7f16eg
-  DEFAULT_REGION: 
+  DEFAULT_REGION: canadaeast
   TAG: "Workload Identity Demo Application"
   
 tasks:

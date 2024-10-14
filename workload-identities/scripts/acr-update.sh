@@ -33,6 +33,4 @@ echo "Update ${ACR} network rule to add ${AKS_OUTBOUND_IP} to allow list . . ."
 az acr network-rule add -n ${ACR} --ip-address ${AKS_OUTBOUND_IP}
 
 echo "Add AcrPull role to ${AKS_NODE_POOL_IDENTITY} (${PRINCIPAL_ID}) on ${ACR} . . ."
-az role assignment create --assignee ${PRINCIPAL_ID} \
-    --role ${ROLE_ID} \
-    --scope ${SCOPE_ID}
+az role assignment create --assignee ${PRINCIPAL_ID} --role ${ROLE_ID} --scope ${SCOPE_ID}

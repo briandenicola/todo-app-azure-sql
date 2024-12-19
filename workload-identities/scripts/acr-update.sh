@@ -2,10 +2,6 @@
 
 while (( "$#" )); do
   case "$1" in
-    -g|--resource-group)
-      ACR_RG=$2
-      shift 2
-      ;;
     -n|--acr-name)
       ACR=$2
       shift 2
@@ -23,6 +19,8 @@ done
 
 SCRIPT_DIR=$(dirname "$(readlink -f "$0")")
 source ${SCRIPT_DIR}/setup-env.sh
+
+ACR_RG=`az acr list --query "[?name=='${ACR}']" | jq -r ".[].resourceGroup"`
 
 ROLE_ID="7f951dda-4ed3-4680-a7ca-43fe172d538d"
 SUBSCRIPTION_ID=$(az account show -o tsv --query id)

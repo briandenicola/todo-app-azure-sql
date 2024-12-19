@@ -1,9 +1,8 @@
 version: '3'
 
 env:
-  ACR_NAME: bjdcsa
-  ACR_RG: Core_ContainerRepo_RG
-  COMMIT_VERSION: workloadid-9cc7fb7f16eg
+  DEFAULT_ACR_NAME: bjdcsa
+  DEFAULT_ACR_RG: Core_ContainerRepo_RG
   DEFAULT_REGION: canadaeast
   TAG: "Workload Identity Demo Application"
   
@@ -19,7 +18,6 @@ tasks:
     - terraform -chdir=./infrastructure workspace select {{.REGION}}
     - terraform -chdir=./infrastructure init
     - task: apply
-    #- task: update-firewalls
     - task: update-sql
     - task: deploy
     vars: 
@@ -43,11 +41,24 @@ tasks:
       AKS: 
         sh: terraform -chdir=./infrastructure output -raw AKS_CLUSTER_NAME
 
+  build:
+    desc: Builds Todo application
+    cmds:
+    - az acr login -n {{.ACR_NAME}}
+    - az acr build --registry {{.ACR_NAME}} --file src/dockerfile --platform linux -t {{.ACR_NAME}}.azurecr.io/todoapi:{{.COMMIT_VERSION}} src/
+    vars:
+      ACR_NAME: '{{default .DEFAULT_ACR_NAME .CLI_ARGS}}' 
+      COMMIT_VERSION:
+        sh: git rev-parse HEAD | head -c 8
+
   deploy:
     desc: Deploys Todo application via Helm
     cmds:
     - helm upgrade -i workloadid --set ACR_NAME="{{.ACR_NAME}}" --set COMMIT_VERSION={{.COMMIT_VERSION}} --set APP_NAME={{.APP_NAME}} --set ARM_WORKLOAD_APP_ID={{.ARM_WORKLOAD_APP_ID}} --set ARM_TENANT_ID={{.ARM_TENANT_ID}} --set APP_INSIGHTS="{{.APP_INSIGHTS}}" ./chart
     vars:
+      ACR_NAME: '{{default .DEFAULT_ACR_NAME .CLI_ARGS}}' 
+      COMMIT_VERSION:
+        sh: git rev-parse HEAD | head -c 8
       APP_NAME: 
         sh: terraform -chdir=./infrastructure output -raw APP_NAME
       ARM_WORKLOAD_APP_ID: 
@@ -60,7 +71,7 @@ tasks:
   update-firewalls:
     desc: Updates firewall rules for Azure Container Registry
     cmds:
-    - ./scripts/acr-update.sh -g {{.ACR_RG}} -n {{.ACR_NAME}}
+    - ./scripts/acr-update.sh -n {{.ACR_NAME}}
 
   update-sql:
     desc: Updates SQL Server with proper configuration

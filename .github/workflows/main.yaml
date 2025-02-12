@@ -21,7 +21,6 @@ jobs:
     env:
       CONTAINER_NAME: todoapi
 
-
     steps:
       - name: Checkout to the branch
         uses: actions/checkout@v3

@@ -1,4 +1,4 @@
-name: Otel Builds
+name: Todo Api Build
 on:
   schedule:
     - cron: "05 7 * * wed"

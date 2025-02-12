@@ -26,7 +26,6 @@ jobs:
       - name: Checkout to the branch
         uses: actions/checkout@v3
 
-      - uses: actions/checkout@v3
       - uses: azure/login@v2
         name: Azure login
         with:

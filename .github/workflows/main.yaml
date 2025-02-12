@@ -1,48 +1,38 @@
-name: Todoapi CI/CD
+name: Otel Builds
 on:
   schedule:
-    - cron: "05 8 * * wed"
+    - cron: "05 7 * * wed"
   workflow_dispatch:
   push:
     branches: 
     - main
     paths: 
-    - 'workload-identities/src/*'
+    - 'demo-apps/otel-prometheus/src/*'
+
+permissions:
+  id-token: write # Require write permission to Fetch an OIDC token.
 
 jobs:
-  build:
+  buildImage:
+    permissions:
+      contents: read
+      id-token: write
     runs-on: ubuntu-latest
     env:
-      CONTAINER_NAME: todoapi
-      TAG_NAME: workloadid-9cc7fb7f16eg
+      CONTAINER_NAME: otel-demo/8.0-ubuntu-jammy
+
 
     steps:
       - name: Checkout to the branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Azure Login
-        uses: azure/login@v1
+      - uses: actions/checkout@v3
+      - uses: azure/login@v2
+        name: Azure login
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
 
-      - uses: azure/docker-login@v1
-        with:
-          login-server: ${{ secrets.ACR_NAME }}
-          username: ${{ secrets.CLIENT_ID }}
-          password: ${{ secrets.CLIENT_SECRET }}
-
-      - name: Build and push container image to registry
-        uses: docker/build-push-action@v2
-        with:
-          context: ./workload-identities/src/
-          push: true
-          tags: ${{ secrets.ACR_NAME }}/${{ env.CONTAINER_NAME }}:${{ env.TAG_NAME }}
-          file: ./workload-identities/src/dockerfile
-
-#      - name: Build and push container image to registry
-#        shell: bash
-#        run: |
-#          cd workload-identities/src
-#          az acr login -n ${{ secrets.ACR_NAME }}
-#          docker build -t ${{ secrets.ACR_NAME }}/${{ env.CONTAINER_NAME }}:${{ env.TAG_NAME }} .
-#          docker push ${{ secrets.ACR_NAME }}/${{ env.CONTAINER_NAME }}:${{ env.TAG_NAME }}
+      - name: Build and push image to ACR
+        run: az acr build --image ${{ env.CONTAINER_NAME }}:${{ github.sha }} --registry ${{ secrets.ACR_NAME }} -g ${{ secrets.ACR_RESOURCE_GROUP }} -f ./workload-identities/src/dockerfile ./workload-identities/src/

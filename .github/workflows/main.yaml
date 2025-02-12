@@ -7,7 +7,7 @@ on:
     branches: 
     - main
     paths: 
-    - 'demo-apps/otel-prometheus/src/*'
+    - './workload-identities/src/*'
 
 permissions:
   id-token: write # Require write permission to Fetch an OIDC token.
@@ -19,7 +19,7 @@ jobs:
       id-token: write
     runs-on: ubuntu-latest
     env:
-      CONTAINER_NAME: otel-demo/8.0-ubuntu-jammy
+      CONTAINER_NAME: todoapi
 
 
     steps:

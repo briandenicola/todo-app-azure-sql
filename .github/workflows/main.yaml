@@ -1,5 +1,7 @@
 name: Todoapi CI/CD
 on:
+  schedule:
+    - cron: "05 8 * * wed"
   workflow_dispatch:
   push:
     branches: 
